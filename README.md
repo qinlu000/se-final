@@ -26,4 +26,5 @@ npm run dev
 Open `/mini-program` in HBuilderX or run via CLI if configured.
 
 ## Architecture
-See [project_blueprint.md](docs/project_blueprint.md) for detailed design and implementation steps.
+See [project_blueprint.md](docs/project_blueprint.md) for the initial design.
+For a detailed technical overview, please refer to [ARCHITECTURE.md](docs/ARCHITECTURE.md).
