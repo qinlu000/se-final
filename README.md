@@ -6,7 +6,7 @@ This project is a multimedia social platform consisting of:
 - **Mini Program**: Uni-app (`/mini-program`)
 
 ## Setup & Development
-For detailed step-by-step instructions, please refer to [RUNNING_GUIDE.md](./RUNNING_GUIDE.md).
+For detailed step-by-step instructions, please refer to [RUNNING_GUIDE.md](docs/RUNNING_GUIDE.md).
 
 ### Backend
 ```bash
@@ -26,4 +26,4 @@ npm run dev
 Open `/mini-program` in HBuilderX or run via CLI if configured.
 
 ## Architecture
-See [project_blueprint.md](./project_blueprint.md) for detailed design and implementation steps.
+See [project_blueprint.md](docs/project_blueprint.md) for detailed design and implementation steps.
