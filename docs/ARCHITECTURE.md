@@ -1,131 +1,277 @@
-# System Architecture Design
+# System Architecture & Technical Design Document
 
-## 1. System Overview
-
-The **Multimedia Social Platform** is a full-stack application designed to mimic core social media functionalities (like WeChat Moments). It adopts a **Client-Server** architecture with a clear separation of concerns:
-
-*   **Backend**: A RESTful API service built with **FastAPI**, handling business logic, data persistence, and authentication.
-*   **Admin Web**: A Single Page Application (SPA) built with **Vue 3**, serving as the management dashboard.
-*   **Mini Program**: A mobile client built with **Uni-app**, providing the end-user experience.
+**Project Name**: Multimedia Social Platform ("Moments" Clone)
+**Version**: 1.0.0
+**Last Updated**: 2025-12-03
 
 ---
 
-## 2. Technology Stack & Rationale
+## 1. Executive Summary
 
-### 2.1 Backend: Python + FastAPI
-*   **Selection**: FastAPI is chosen over Django/Flask for its high performance (ASGI), automatic OpenAPI (Swagger) documentation generation, and native Python type hinting support.
-*   **Key Libraries**:
-    *   `SQLAlchemy`: ORM for database interactions, ensuring database agnosticism.
-    *   `Pydantic`: Data validation and settings management.
-    *   `Passlib` + `PyJWT`: Secure password hashing (bcrypt) and stateless authentication.
+This document provides a comprehensive technical overview of the Multimedia Social Platform. The system is a full-stack social media application designed to replicate core functionalities of WeChat Moments, including multimedia posting (text, image, video), social interactions (likes, comments, follows), and a robust administrative dashboard.
 
-### 2.2 Admin Frontend: Vue 3 + Vite + Element Plus
-*   **Selection**: Vue 3 offers a reactive and composable component model. Vite provides lightning-fast build times. Element Plus is the industry standard UI library for Vue-based admin panels.
-*   **Key Features**:
-    *   `Vue Router`: Client-side routing.
-    *   `Axios`: HTTP client with interceptors for token management.
-    *   `ECharts`: For data visualization in the dashboard.
-
-### 2.3 Mobile Client: Uni-app
-*   **Selection**: Uni-app allows writing Vue.js code that compiles to multiple platforms (WeChat Mini Program, H5, iOS, Android). This significantly reduces development cost compared to native development.
-*   **Key Features**:
-    *   Cross-platform compatibility.
-    *   Native-like performance for list rendering.
+The architecture follows a **Modern Separation of Concerns** principle, utilizing a headless Python backend (FastAPI) serving two distinct frontends: a mobile-first Mini Program (Uni-app) and a desktop Admin Dashboard (Vue 3).
 
 ---
 
-## 3. System Architecture Diagram
+## 2. Technology Stack
+
+### 2.1 Backend (Server-Side)
+*   **Language**: Python 3.9+
+*   **Framework**: **FastAPI** (High-performance ASGI framework)
+*   **Database**: **SQLite** (Development) / **PostgreSQL** (Production ready)
+*   **ORM**: **SQLAlchemy** (AsyncIO support)
+*   **Authentication**: OAuth2 with Password Flow + **JWT** (JSON Web Tokens)
+*   **Validation**: **Pydantic V2** (Data serialization and validation)
+*   **Security**: `Passlib` (Bcrypt hashing), `Python-Multipart` (File uploads)
+
+### 2.2 Admin Frontend (Web Client)
+*   **Framework**: **Vue.js 3** (Composition API)
+*   **Build Tool**: **Vite** (Next-generation frontend tooling)
+*   **UI Library**: **Element Plus** (Enterprise-grade UI components)
+*   **HTTP Client**: **Axios** (with interceptors for token management)
+*   **Visualization**: **ECharts** (Data visualization)
+*   **Language**: TypeScript / JavaScript
+
+### 2.3 Mobile Client (Mini Program)
+*   **Framework**: **Uni-app** (Vue 3 based cross-platform framework)
+*   **Target Platform**: WeChat Mini Program / H5 Mobile Web
+*   **Styling**: Scoped CSS, Flexbox layout
+*   **Network**: `uni.request` wrapper with Promise support
+
+---
+
+## 3. System Architecture
+
+### 3.1 High-Level Architecture Diagram
 
 ```mermaid
 graph TD
     subgraph "Client Layer"
-        MP[Mini Program (Uni-app)]
+        MP[Mobile Client (Uni-app)]
         Web[Admin Dashboard (Vue 3)]
     end
 
-    subgraph "Gateway / Network"
-        HTTP[HTTP/HTTPS]
+    subgraph "Gateway Layer"
+        Nginx[Nginx / Reverse Proxy]
     end
 
-    subgraph "Service Layer (FastAPI)"
-        Auth[Auth Service]
-        User[User Service]
-        Post[Post/Content Service]
-        Inter[Interaction Service]
-        Stat[Statistics Service]
+    subgraph "Application Layer (FastAPI)"
+        API[Main API Service]
+        Auth[Auth Middleware]
+        Static[Static File Server]
     end
 
-    subgraph "Data Layer"
-        DB[(PostgreSQL/SQLite)]
-        FS[File System (Media Storage)]
+    subgraph "Data Persistence Layer"
+        DB[(Primary Database)]
+        FS[File System / Object Storage]
     end
 
-    MP -->|REST API| HTTP
-    Web -->|REST API| HTTP
-    HTTP --> Auth
-    HTTP --> User
-    HTTP --> Post
-    HTTP --> Inter
-    HTTP --> Stat
+    MP -->|HTTPS / JSON| Nginx
+    Web -->|HTTPS / JSON| Nginx
+    Nginx --> API
+    API --> Auth
+    API --> Static
+    API --> DB
+    Static --> FS
+```
 
-    Auth --> DB
-    User --> DB
-    Post --> DB
-    Post --> FS
-    Inter --> DB
-    Stat --> DB
+### 3.2 Directory Structure & Modules
+
+#### Backend (`/backend`)
+| Directory | Responsibility |
+| :--- | :--- |
+| `app/core` | **Core Infrastructure**: Database connection (`database.py`), Security (`security.py`), Config (`config.py`). |
+| `app/models` | **Data Access Layer**: SQLAlchemy models defining DB schema (`user.py`, `post.py`, etc.). |
+| `app/schemas` | **Data Transfer Objects (DTOs)**: Pydantic models for request/response validation. |
+| `app/routers` | **Controllers**: API endpoints handling HTTP requests (`auth.py`, `posts.py`, `users.py`). |
+| `static/uploads` | **Storage**: Local directory for uploaded images/videos. |
+
+#### Admin Web (`/admin-web`)
+| Directory | Responsibility |
+| :--- | :--- |
+| `src/views` | **Pages**: `Login.vue`, `Dashboard.vue`, `Users.vue`, `Posts.vue`. |
+| `src/layout` | **Layouts**: Main application shell (Sidebar, Header). |
+| `src/api.ts` | **Networking**: Centralized Axios instance with JWT injection. |
+
+#### Mini Program (`/mini-program`)
+| Directory | Responsibility |
+| :--- | :--- |
+| `pages/` | **Screens**: `index` (Feed), `upload` (Post), `profile` (User), `login`. |
+| `components/` | **Widgets**: `PostCard.vue` (Feed Item), `MediaGrid.vue` (Image Grid). |
+
+---
+
+## 4. Database Design
+
+The system uses a relational database model designed for data integrity and efficient querying.
+
+### 4.1 Entity-Relationship (ER) Diagram
+
+```mermaid
+erDiagram
+    User ||--o{ Post : "publishes"
+    User ||--o{ Comment : "writes"
+    User ||--o{ Rating : "likes"
+    User ||--o{ Follow : "follows"
+    
+    Post ||--o{ Comment : "has"
+    Post ||--o{ Rating : "receives"
+    Post ||--o{ PostTag : "categorized by"
+    Tag ||--o{ PostTag : "tags"
+
+    User {
+        int id PK
+        string username "Unique login ID"
+        string password_hash "Bcrypt hash"
+        string nickname "Display name"
+        string avatar_url
+        bool is_admin
+    }
+
+    Post {
+        int id PK
+        int user_id FK
+        text content
+        enum media_type "text/image/video"
+        json media_urls "Array of file paths"
+        datetime created_at
+    }
+
+    Follow {
+        int follower_id PK,FK
+        int followed_id PK,FK
+    }
+```
+
+### 4.2 Key Schema Decisions
+1.  **Media Storage**: Instead of a separate `Media` table, we use a `JSON` column (`media_urls`) in the `Post` table. This simplifies queries for posts that have multiple images (1-9 images), typical for "Moments" style feeds.
+2.  **Interactions**: `Rating` table is used for "Likes". It stores a `score` (1-5), but for the "Like" feature, we standardize on a score of 5. This allows future extensibility to a star-rating system without schema changes.
+3.  **Follow System**: Implemented as a self-referential many-to-many relationship on the `User` table using a dedicated association table (`follows`).
+
+---
+
+## 5. Core Business Flows
+
+### 5.1 User Login & Token Issue
+This flow demonstrates the OAuth2 Password Bearer pattern.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client (Mini Program)
+    participant API (FastAPI)
+    participant DB
+
+    User->>Client: Enter Username/Password
+    Client->>API: POST /auth/login (form-data)
+    API->>DB: Query User by Username
+    DB-->>API: User Record
+    API->>API: Verify Password Hash (bcrypt)
+    alt Valid Credentials
+        API->>API: Generate JWT (Access Token)
+        API-->>Client: 200 OK {access_token, token_type}
+        Client->>Client: Save Token to Storage
+    else Invalid
+        API-->>Client: 401 Unauthorized
+    end
+```
+
+### 5.2 Posting Multimedia Content
+This flow handles file uploads and post creation.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client
+    participant API
+    participant FS (FileSystem)
+    participant DB
+
+    User->>Client: Select Images & Write Text
+    loop For each image
+        Client->>API: POST /upload (multipart/form-data)
+        API->>FS: Save File
+        API-->>Client: Return File URL
+    end
+    Client->>API: POST /posts (content, media_urls)
+    API->>API: Validate Data (Pydantic)
+    API->>DB: Insert Post Record
+    DB-->>API: New Post ID
+    API-->>Client: 201 Created (Post Object)
+    Client->>Client: Prepend to Feed (Optimistic UI)
+```
+
+### 5.3 Optimistic Interaction (Like/Unlike)
+To ensure a smooth user experience, the UI updates immediately.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI (PostCard)
+    participant API
+
+    User->>UI: Click "Like" Heart
+    UI->>UI: Toggle Icon Red (Immediate)
+    UI->>API: POST /posts/{id}/rate
+    alt API Success
+        API-->>UI: 200 OK
+        UI->>UI: Keep Red State
+    else API Failure
+        API-->>UI: Error
+        UI->>UI: Revert Icon to Grey
+        UI->>User: Show Toast "Failed"
+    end
 ```
 
 ---
 
-## 4. Core Module Design
+## 6. Security Implementation
 
-### 4.1 Authentication & Security
-*   **Mechanism**: OAuth2 with Password Flow (Bearer Token).
-*   **Flow**:
-    1.  Client sends `username` + `password`.
-    2.  Server verifies hash, issues `access_token` (JWT).
-    3.  Client stores token (Storage/LocalStorage) and attaches it to `Authorization` header for subsequent requests.
-*   **Security**:
-    *   Passwords are hashed using `bcrypt` before storage.
-    *   CORS middleware configured to allow trusted origins.
+### 6.1 Authentication
+*   **JWT (JSON Web Tokens)**: Stateless authentication. The server does not store session data. The token contains the `sub` (username) and expiration time.
+*   **Algorithm**: HS256 (HMAC with SHA-256).
+*   **Expiration**: Tokens are valid for 30 minutes (configurable).
 
-### 4.2 Content Management (Feed)
-*   **Data Model**: `Post` entity contains `content` (text) and `media_urls` (JSON array).
-*   **Optimization**:
-    *   **Pagination**: API uses `skip` and `limit` to support infinite scrolling on the client.
-    *   **Eager Loading**: `SQLAlchemy`'s `selectinload` is used to fetch related `User` and `Comments` data in a single query to avoid N+1 problems.
+### 6.2 Password Security
+*   **Hashing**: Uses `bcrypt` (via `passlib`). Bcrypt is slow by design to resist brute-force attacks.
+*   **Salting**: Automatic salting handling by the library.
 
-### 4.3 Interaction System
-*   **Optimistic UI**: The frontend (Mini Program) updates the UI *immediately* upon user action (Like/Follow) without waiting for the server response. If the API call fails, the UI reverts. This ensures a snappy user experience.
-*   **Persistence**: All interactions (Likes, Comments, Follows) are stored in relational tables (`ratings`, `comments`, `follows`) with foreign keys ensuring referential integrity.
+### 6.3 API Security
+*   **Dependency Injection**: FastAPI's `Depends` system is used to inject the `get_current_user` dependency into protected routes.
+*   **CORS**: Configured to allow requests from `localhost` (dev) or specific domains (prod) to prevent unauthorized cross-origin access.
 
 ---
 
-## 5. Directory Structure & Responsibilities
+## 7. Frontend Architecture Highlights
 
-### Backend (`/backend`)
-*   `app/core`: Global configurations, security utilities, database connection factory.
-*   `app/models`: SQLAlchemy ORM models (Database schema definition).
-*   `app/schemas`: Pydantic models (Request/Response validation).
-*   `app/routers`: API route handlers (Controllers).
-*   `static/uploads`: Local storage for user-uploaded media.
+### 7.1 Component Design (Vue 3)
+*   **Composition API**: Logic is reused using `<script setup>`.
+*   **Props & Emits**: Strict data flow. Parent passes data down via `props` (e.g., `Post` object), Child notifies parent via `emits` (e.g., `@delete`, `@like`).
+*   **Scoped CSS**: Styles are encapsulated within components to prevent leakage.
 
-### Admin Web (`/admin-web`)
-*   `src/api.ts`: Centralized API configuration and interceptors.
-*   `src/views`: Page components (Login, Dashboard, Users, Posts).
-*   `src/layout`: Common layout wrapper (Sidebar, Header).
-
-### Mini Program (`/mini-program`)
-*   `pages/`: Screen components (Index, Profile, Upload).
-*   `components/`: Reusable UI widgets (`PostCard`, `MediaGrid`).
-*   `utils/request.js`: Encapsulated `uni.request` with token handling.
+### 7.2 State Management
+*   **Local State**: `ref` and `reactive` are used for component-local state (e.g., `isLiked`, `commentText`).
+*   **Global State**: Simple state sharing via `uni.getStorageSync` for the Auth Token.
 
 ---
 
-## 6. Future Scalability Considerations
+## 8. Deployment Strategy
 
-1.  **Database**: Currently using SQLite for dev simplicity. Can be switched to PostgreSQL by changing the `DATABASE_URL` env var.
-2.  **Storage**: Currently using local filesystem. Can be refactored to use S3/MinIO by updating the `upload` router.
-3.  **Caching**: Redis can be introduced to cache the Feed stream for high-concurrency scenarios.
-4.  **AI**: The architecture supports adding a background worker (e.g., Celery) to handle heavy AI tasks (content moderation, sentiment analysis) without blocking the main API thread.
+### 8.1 Dockerization (Optional)
+A `docker-compose.yml` is provided to orchestrate the services:
+*   **Service 1 (Backend)**: Python container running `uvicorn`.
+*   **Service 2 (DB)**: PostgreSQL container (for production persistence).
+*   **Service 3 (Adminer)**: Database management GUI.
+
+### 8.2 Production Considerations
+*   **Reverse Proxy**: Use Nginx to handle SSL termination and route requests (`/api` -> Backend, `/` -> Static Frontend).
+*   **Process Manager**: Use `gunicorn` with `uvicorn` workers for better concurrency in production.
+*   **Static Files**: Serve frontend assets via Nginx/CDN, not the API server.
+
+---
+
+## 9. Future Roadmap
+*   **Real-time**: Implement WebSockets for instant notification of likes/comments.
+*   **Search**: Integrate Elasticsearch for full-text search of post content.
+*   **AI**: Add background workers (Celery) to process images (NSFW check) and generate text summaries.
