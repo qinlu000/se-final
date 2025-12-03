@@ -1,0 +1,307 @@
+<template>
+  <view class="page">
+    <view class="header-bg">
+      <view class="settings-btn" @click="handleLogout">
+        <text class="settings-icon">⚙️</text>
+      </view>
+    </view>
+    
+    <view class="profile-card">
+      <view class="avatar-container">
+        <image class="avatar" :src="profile.avatar_url || defaultAvatar" mode="aspectFill" />
+      </view>
+      <view class="info">
+        <text class="name">{{ profile.nickname || profile.username || '未登录' }}</text>
+        <text class="sub">加入时间：{{ formatDate(profile.created_at) }}</text>
+        <view class="edit-btn" @click="goEditProfile">
+          <text>编辑资料</text>
+        </view>
+      </view>
+      
+      <view class="stats-row">
+        <view class="stat-item" hover-class="stat-hover">
+          <text class="stat-num">{{ followingCount }}</text>
+          <text class="stat-label">关注</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item" hover-class="stat-hover">
+          <text class="stat-num">{{ followerCount }}</text>
+          <text class="stat-label">粉丝</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item" hover-class="stat-hover">
+          <text class="stat-num">{{ myPosts.length }}</text>
+          <text class="stat-label">动态</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">我的动态</text>
+      </view>
+      <view class="post-list">
+        <view v-for="item in myPosts" :key="item.id">
+          <PostCard :post="item" :currentUserId="profile.id" @like="onLike" @comment="onComment" @delete="onDelete" />
+        </view>
+      </view>
+      <view class="empty" v-if="myPosts.length === 0">
+        <image class="empty-img" src="https://img.alicdn.com/imgextra/i2/O1CN01d159be1k2AII0fV6o_!!6000000004624-2-tps-200-200.png" mode="aspectFit" />
+        <text>暂无动态，快去发布第一条吧</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup>
+import { reactive, ref, onMounted } from 'vue'
+import PostCard from '../../components/PostCard.vue'
+import { get } from '../../utils/request'
+
+const profile = reactive({
+  id: null,
+  username: '',
+  nickname: '',
+  avatar_url: '',
+  created_at: '',
+})
+const myPosts = ref([])
+const followerCount = ref(0)
+const followingCount = ref(0)
+const defaultAvatar =
+  'https://img.alicdn.com/imgextra/i3/O1CN01G9FphX1s2oAtxEvsN_!!6000000005714-2-tps-200-200.png'
+
+const fetchProfile = async () => {
+  try {
+    const res = await get('/auth/me')
+    Object.assign(profile, res || {})
+  } catch (err) {
+    console.error(err)
+    uni.showToast({ title: '请先登录', icon: 'none' })
+    setTimeout(() => {
+      uni.reLaunch({ url: '/pages/login/login' })
+    }, 1500)
+  }
+}
+
+const fetchMyPosts = async () => {
+  if (!profile.id) return
+  try {
+    const res = await get('/posts', { user_id: profile.id })
+    myPosts.value = Array.isArray(res) ? res : []
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const fetchFollowCounts = async () => {
+  if (!profile.id) return
+  try {
+    const followers = await get(`/users/${profile.id}/followers`)
+    const following = await get(`/users/${profile.id}/following`)
+    followerCount.value = Array.isArray(followers) ? followers.length : 0
+    followingCount.value = Array.isArray(following) ? following.length : 0
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const formatDate = (str) => {
+  if (!str) return ''
+  const d = new Date(str)
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+}
+
+const onLike = () => {}
+const onComment = () => {}
+const onDelete = (postId) => {
+  myPosts.value = myPosts.value.filter(p => p.id !== postId)
+}
+
+const handleLogout = () => {
+  uni.showModal({
+    title: '提示',
+    content: '确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        uni.removeStorageSync('token')
+        uni.reLaunch({ url: '/pages/login/login' })
+      }
+    }
+  })
+}
+
+const goEditProfile = () => {
+  uni.showToast({ title: '功能开发中...', icon: 'none' })
+}
+
+onMounted(async () => {
+  await fetchProfile()
+  await fetchMyPosts()
+  await fetchFollowCounts()
+})
+</script>
+
+<style scoped>
+.page {
+  min-height: 100vh;
+  background: #f8f8f8;
+  padding-bottom: 40rpx;
+}
+
+.header-bg {
+  height: 360rpx;
+  background: linear-gradient(135deg, #07c160, #059669);
+  border-bottom-left-radius: 48rpx;
+  border-bottom-right-radius: 48rpx;
+  position: relative;
+}
+
+.settings-btn {
+  position: absolute;
+  top: 100rpx; /* Adjust for status bar */
+  right: 40rpx;
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.settings-icon {
+  font-size: 32rpx;
+}
+
+.profile-card {
+  margin: -120rpx 30rpx 0;
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 0 40rpx 50rpx;
+  box-shadow: 0 12rpx 32rpx rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-container {
+  margin-top: -70rpx;
+  padding: 10rpx;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.1);
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  display: block;
+}
+
+.info {
+  text-align: center;
+  margin-top: 24rpx;
+  margin-bottom: 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.name {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.sub {
+  font-size: 24rpx;
+  color: #9ca3af;
+  margin-bottom: 24rpx;
+}
+
+.edit-btn {
+  padding: 10rpx 32rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.stats-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  border-radius: 16rpx;
+  transition: background 0.2s;
+}
+
+.stat-hover {
+  background: #f9fafb;
+}
+
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 40rpx;
+  background: #f3f4f6;
+}
+
+.section {
+  margin-top: 40rpx;
+  padding: 0 30rpx;
+}
+
+.section-header {
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: #9ca3af;
+  gap: 20rpx;
+}
+
+.empty-img {
+  width: 200rpx;
+  height: 200rpx;
+  opacity: 0.5;
+}
+</style>
