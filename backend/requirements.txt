@@ -12,6 +12,7 @@ fastapi==0.123.5
 greenlet==3.2.4
 h11==0.16.0
 idna==3.11
+openai==1.51.2
 passlib==1.7.4
 pyasn1==0.6.1
 pycparser==2.23

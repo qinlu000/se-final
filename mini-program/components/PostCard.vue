@@ -34,7 +34,19 @@
         <text class="icon">💬</text>
         <text class="count">{{ localComments.length > 0 ? localComments.length : '评论' }}</text>
       </view>
+      <view class="action-pill ai-btn" @click.stop="askAi">
+        <text class="icon">🤖</text>
+        <text class="count">{{ aiLoading ? '生成中' : (aiSummary ? '重生成' : 'AI解读') }}</text>
+      </view>
     </view>
+
+    <AICard
+      v-if="aiSummary || aiTags.length || aiSuggestions.length"
+      :summary="aiSummary"
+      :tags="aiTags"
+      :suggestions="aiSuggestions"
+      @select-reply="applyReply"
+    />
 
     <!-- Comments List -->
     <view v-if="localComments.length > 0" class="comments-list">
@@ -61,7 +73,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { request } from '../utils/request'
+import { askAI } from '../api/ai'
 import MediaGrid from './MediaGrid.vue'
+import AICard from './AICard.vue'
 
 const emit = defineEmits(['like', 'comment', 'delete'])
 const props = defineProps({
@@ -82,6 +96,10 @@ const defaultAvatar =
 const isFollowing = ref(props.post?.is_following || false)
 const isLiked = ref(props.post?.is_liked || false)
 const localComments = ref(props.post?.comments || [])
+const aiSummary = ref('')
+const aiTags = ref([])
+const aiSuggestions = ref([])
+const aiLoading = ref(false)
 
 const showFollowButton = computed(() => {
   if (!props.post?.user_id || !props.currentUserId) return false
@@ -98,6 +116,9 @@ watch(
       if (newVal.comments) {
         localComments.value = newVal.comments
       }
+      aiSummary.value = ''
+      aiTags.value = []
+      aiSuggestions.value = []
     }
   },
   { deep: true, immediate: true }
@@ -186,6 +207,42 @@ const toggleFollow = async () => {
     isFollowing.value = originalState
     uni.showToast({ title: '操作失败', icon: 'none' })
   }
+}
+
+const askAi = async () => {
+  if (aiLoading.value) return
+  aiLoading.value = true
+  try {
+    const res = await askAI({
+      content: props.post?.content || '',
+      mode: 'summary',
+      tone: 'friendly',
+      include_tags: true,
+    })
+    if (res?.status === 'sensitive') {
+      uni.showToast({ title: '内容包含敏感信息', icon: 'none' })
+      return
+    }
+    aiSummary.value = res?.summary || ''
+    aiTags.value = res?.tags || []
+    aiSuggestions.value = res?.suggestions || []
+    if (!aiSummary.value && aiTags.value.length === 0) {
+      uni.showToast({ title: 'AI没有生成内容', icon: 'none' })
+    } else {
+      uni.showToast({ title: 'AI生成完成', icon: 'success' })
+    }
+  } catch (err) {
+    console.error(err)
+    uni.showToast({ title: 'AI暂时不可用', icon: 'none' })
+  } finally {
+    aiLoading.value = false
+  }
+}
+
+const applyReply = (text) => {
+  if (!text) return
+  commentText.value = text
+  showCommentInput.value = true
 }
 
 const deletePost = () => {
@@ -328,6 +385,10 @@ const formatTime = (timeStr) => {
 .action-pill.active {
   background: var(--c-pink);
   color: var(--c-black);
+}
+
+.ai-btn {
+  background: var(--c-yellow);
 }
 
 .icon {

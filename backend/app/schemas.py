@@ -92,3 +92,17 @@ class PostDetail(PostOut):
 
 class UploadResponse(BaseModel):
     url: str
+
+
+class AssistantRequest(BaseModel):
+    content: str
+    mode: Literal["summary", "reply", "tags"] = "summary"
+    tone: Literal["friendly", "professional", "humorous"] = "friendly"
+    include_tags: bool = True
+
+
+class AssistantResponse(BaseModel):
+    status: Literal["ok", "sensitive", "error"] = "ok"
+    summary: Optional[str] = None
+    suggestions: List[str] = []
+    tags: List[str] = []

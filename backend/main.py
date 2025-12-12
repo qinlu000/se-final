@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from app.core.database import Base, engine
 from app.routers import (
     auth_router,
+    assistant_router,
     friends_router,
     interactions_router,
     posts_router,
@@ -39,6 +40,7 @@ async def read_root():
 
 
 app.include_router(auth_router)
+app.include_router(assistant_router)
 app.include_router(posts_router)
 app.include_router(interactions_router)
 app.include_router(upload_router)
