@@ -25,3 +25,7 @@ unpackage/
 .idea/
 .vscode/
 *.swp
+
+# Uploads
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
