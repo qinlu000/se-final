@@ -3,6 +3,9 @@ import sys
 import os
 import random
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Add parent dir to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -34,9 +37,44 @@ POST_CONTENTS = [
     "Can't believe it's already December. Time flies.",
     "Anyone know a good place to fix a flat tire?",
     "My cat is so cute when she sleeps. #cat #pet",
-    "Learning Vue 3 and FastAPI. It's a great combo! #tech #learning"
+    "Learning Vue 3 and FastAPI. It's a great combo! #tech #learning",
+    "今天天气真好，去公园散步心情很棒！🎉 #生活 #快乐",
+    "这个新餐厅太难吃了，服务也很差，避雷！👿 #吐槽 #美食",
+    "工作压力好大，感觉快要崩溃了... 🌧️ #emo #加班",
+    "学习 Rust 真的好难，但是很有趣！ #tech #rust",
+    "Je suis très heureux aujourd'hui! (I am very happy today)",
+    "Esta comida es deliciosa. (This food is delicious)",
+    # Long Post 1: Tech Article
+    """
+    最近在研究微服务架构，发现它虽然能解决单体应用的扩展性问题，但也带来了复杂的运维成本。
+    特别是服务发现、熔断降级、分布式链路追踪这些组件的引入，让整个系统变得极其庞大。
+    对于初创团队来说，过早引入微服务可能是一个陷阱。
+    更好的做法可能是模块化单体（Modular Monolith），在保持代码边界清晰的同时，避免网络调用的开销和分布式的复杂性。
+    大家怎么看？欢迎评论区讨论！👇
+    #tech #architecture #microservices
+    """,
+    # Long Post 2: Story
+    """
+    It was a rainy Tuesday when I first met him. He was standing under the awning of the old bookstore, holding a soaking wet umbrella.
+    "Do you think it will ever stop?" he asked, looking at the grey sky.
+    I smiled, "Eventually, everything stops."
+    We ended up talking for hours about books, life, and the strange comfort of rainy days.
+    Sometimes the best connections happen in the most unexpected moments.
+    Life is funny that way. You never know who you might meet just by waiting for the rain to clear.
+    #story #life #rain
+    """,
+    # Long Post 3: Movie Review
+    """
+    刚刚看完《星际穿越》重映，依然被震撼得说不出话。
+    诺兰对五维空间的想象，以及汉斯季默的配乐，简直是天作之合。
+    最打动我的还是库珀和墨菲之间的父女情，“爱是唯一可以穿越时间与空间的事物”。
+    即使在浩瀚宇宙中，人类的情感依然是最强大的力量。
+    强推大家去 IMAX 再刷一遍！
+    评分：10/10 🌟🌟🌟🌟🌟
+    #movie #interstellar #nolan
+    """
 ]
-TAGS = ['travel', 'food', 'tech', 'sport', 'movie', 'music', 'cat', 'pet', 'learning', 'paris', 'sushi', 'coding', 'running', 'chill']
+TAGS = ['travel', 'food', 'tech', 'sport', 'movie', 'music', 'cat', 'pet', 'learning', 'paris', 'sushi', 'coding', 'running', 'chill', '生活', '快乐', '吐槽', '美食', 'emo', '加班', 'rust', 'architecture', 'microservices', 'story', 'life', 'rain', 'interstellar', 'nolan']
 
 async def seed_data():
     print("Creating tables...")

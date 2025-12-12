@@ -8,7 +8,6 @@ Before you begin, ensure you have the following installed:
 -   **Python 3.9+** (for Backend)
 -   **Node.js 16+** (for Admin Web)
 -   **HBuilderX** (Recommended for running the Uni-app Mini Program)
--   **Git** (Optional, for version control)
 
 ---
 
@@ -36,10 +35,15 @@ The system requires an LLM provider for AI features. We use **OpenRouter**.
 1.  Create a file named `.env` in the `backend/` directory.
 2.  Add your API Key:
     ```env
-    DATABASE_URL=postgresql+asyncpg://postgres:password@localhost/moments_db
-    SECRET_KEY=your_secret_key_here
+    # Database: Default uses SQLite (Zero-config). No need to change.
+    DATABASE_URL=sqlite+aiosqlite:///app.db
+    
+    # Security
+    SECRET_KEY=change_this_to_a_secure_random_string
+    
+    # AI Service (OpenRouter)
     OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxx
-    # Optional:
+    # REQUIRED: Use this exact model slug
     OPENROUTER_MODEL=deepseek/deepseek-chat
     ```
 

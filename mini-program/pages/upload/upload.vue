@@ -223,8 +223,19 @@ const submitPost = async () => {
 
 .ai-btn {
   padding: 14rpx 26rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+  background-color: var(--c-yellow);
+  border: var(--border-thick);
   box-shadow: var(--shadow-hard);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.ai-btn:active {
+  transform: translate(2rpx, 2rpx);
+  box-shadow: none;
 }
 
 .picker {

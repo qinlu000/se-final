@@ -55,7 +55,7 @@ Implemented in `routers/assistant.py`.
 ### 3.1 Schema Definition (DDL)
 ```sql
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE,

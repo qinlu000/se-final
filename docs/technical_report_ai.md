@@ -5,7 +5,7 @@
 ### 1.1 The "Model-Agnostic" Proxy
 The system uses the **Proxy Pattern** via OpenRouter.
 - **Interface**: OpenAI-compatible JSON API.
-- **Routing**: The backend sends requests to `https://openrouter.ai/api/v1`, which routes to `DeepSeek V3`.
+- **Routing**: The backend sends requests to `https://openrouter.ai/api/v1`, using the `deepseek/deepseek-chat` model slug (pointing to V3).
 - **Why?**: Allows hot-swapping models (e.g., to `meta-llama/llama-3-70b`) without code changes if DeepSeek experiences downtime.
 
 ## 2. Prompt Engineering Specification
