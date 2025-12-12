@@ -1,19 +1,19 @@
 <template>
   <div class="page">
     <div class="cards">
-      <el-card class="card gradient-1">
+      <el-card class="card card-yellow">
         <div class="stat-title">总用户</div>
         <div class="stat-value">{{ stats.total_users }}</div>
       </el-card>
-      <el-card class="card gradient-2">
+      <el-card class="card card-pink">
         <div class="stat-title">总内容</div>
         <div class="stat-value">{{ stats.total_posts }}</div>
       </el-card>
-      <el-card class="card gradient-3">
+      <el-card class="card card-cyan">
         <div class="stat-title">今日活跃</div>
         <div class="stat-value">{{ todayActive }}</div>
       </el-card>
-      <el-card class="card gradient-4">
+      <el-card class="card card-purple">
         <div class="stat-title">互动总量</div>
         <div class="stat-value">{{ totalInteractions }}</div>
       </el-card>
@@ -80,6 +80,7 @@ const lineRef = ref<HTMLDivElement>()
 const pieRef = ref<HTMLDivElement>()
 let lineChart: echarts.ECharts | null = null
 let pieChart: echarts.ECharts | null = null
+const palette = ['#FFE600', '#FF6B6B', '#00F0FF', '#9D4EDD']
 
 const fetchStats = async () => {
   try {
@@ -101,27 +102,25 @@ const renderCharts = () => {
       xAxis: { 
         type: 'category', 
         data: stats.daily_active.map((d) => d.date.slice(5)), // Show MM-DD
-        axisLine: { lineStyle: { color: '#e5e7eb' } },
-        axisLabel: { color: '#6b7280' }
+        axisLine: { lineStyle: { color: '#000000', width: 2 } },
+        axisTick: { lineStyle: { color: '#000000' } },
+        axisLabel: { color: '#000000', fontWeight: '700' }
       },
       yAxis: { 
         type: 'value',
-        splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } }
+        splitLine: { lineStyle: { type: 'dashed', color: '#000000' } },
+        axisLine: { lineStyle: { color: '#000000', width: 2 } },
+        axisLabel: { color: '#000000', fontWeight: '700' }
       },
       series: [
         {
           name: '活跃用户',
           type: 'line',
           data: stats.daily_active.map((d) => d.active),
-          smooth: true,
-          symbolSize: 8,
-          itemStyle: { color: '#3b82f6' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
-              { offset: 1, color: 'rgba(59, 130, 246, 0)' }
-            ])
-          },
+          smooth: false,
+          symbolSize: 10,
+          itemStyle: { color: '#000000' },
+          lineStyle: { color: '#000000', width: 3 },
         },
       ],
     })
@@ -145,7 +144,8 @@ const renderCharts = () => {
 
     pieChart.setOption({
       tooltip: { trigger: 'item' },
-      legend: { bottom: '0%', left: 'center' },
+      legend: { bottom: '0%', left: 'center', textStyle: { color: '#000', fontWeight: '700' } },
+      color: palette,
       series: [
         {
           name: '内容类型',
@@ -153,8 +153,8 @@ const renderCharts = () => {
           radius: ['40%', '70%'],
           avoidLabelOverlap: false,
           itemStyle: {
-            borderRadius: 10,
-            borderColor: '#fff',
+            borderRadius: 6,
+            borderColor: '#000000',
             borderWidth: 2
           },
           label: { show: false, position: 'center' },
@@ -209,30 +209,25 @@ onBeforeUnmount(() => {
 
 .card {
   text-align: center;
-  border: none;
-  color: white;
-  transition: transform 0.2s;
+  border: var(--border-thick);
+  color: var(--c-black);
+  box-shadow: var(--shadow-hard);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-}
-
-.gradient-1 { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
-.gradient-2 { background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%); }
-.gradient-3 { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); }
-.gradient-4 { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); }
+.card-yellow { background: var(--c-yellow); }
+.card-pink { background: var(--c-pink); }
+.card-cyan { background: var(--c-cyan); }
+.card-purple { background: var(--c-purple); }
 
 .stat-title {
-  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   margin-bottom: 8px;
+  font-weight: 800;
 }
 
 .stat-value {
   font-size: 32px;
   font-weight: 700;
-  color: white;
 }
 
 .charts-row {
@@ -243,7 +238,8 @@ onBeforeUnmount(() => {
 
 .chart-card {
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-hard);
+  border: var(--border-thick);
 }
 
 .card-header {

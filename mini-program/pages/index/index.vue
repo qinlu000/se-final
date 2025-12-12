@@ -159,54 +159,67 @@ onReachBottom(() => {
 <style scoped>
 .page {
   height: 100vh;
-  background: #f8f8f8;
+  background-color: var(--c-bg);
+  background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
+  background-size: 18px 18px;
   display: flex;
   flex-direction: column;
 }
 
 .tabs-container {
-  background: #ffffff;
-  padding-top: 10rpx;
+  background: var(--c-white);
+  padding: 16rpx 0 6rpx;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.02);
+  border-bottom: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .tabs {
   display: flex;
   justify-content: center;
-  gap: 60rpx;
+  gap: 40rpx;
 }
 
 .tab {
-  padding: 20rpx 0;
+  padding: 16rpx 28rpx;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: var(--radius-full);
+  border: var(--border-thin);
+  background: #ffffff;
+  box-shadow: var(--shadow-hard);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.tab.active {
+  background: var(--c-yellow);
+  transform: translate(0rpx, -4rpx);
 }
 
 .tab-text {
   font-size: 32rpx;
-  color: #9ca3af;
-  font-weight: 500;
-  transition: all 0.3s;
+  color: #111;
+  font-weight: 800;
+  letter-spacing: 0.4rpx;
 }
 
 .tab.active .tab-text {
-  color: #1f2937;
-  font-weight: 700;
+  color: var(--c-black);
   font-size: 34rpx;
 }
 
 .tab-line {
-  width: 40rpx;
-  height: 6rpx;
-  background: #07c160;
-  border-radius: 6rpx;
+  width: 44rpx;
+  height: 10rpx;
+  background: var(--c-yellow);
+  border: var(--border-thick);
+  border-radius: var(--radius-full);
   position: absolute;
-  bottom: 10rpx;
+  bottom: -10rpx;
 }
 
 .feed {
@@ -215,34 +228,35 @@ onReachBottom(() => {
 }
 
 .feed-content {
-  padding: 24rpx;
-  padding-bottom: 160rpx;
+  padding: 28rpx 24rpx 200rpx;
 }
 
 .fab {
   position: fixed;
   right: 40rpx;
   bottom: 60rpx;
-  width: 110rpx;
-  height: 110rpx;
-  background: linear-gradient(135deg, #07c160, #059669);
-  color: #ffffff;
-  border-radius: 50%;
+  width: 120rpx;
+  height: 120rpx;
+  background: var(--c-yellow);
+  color: var(--c-black);
+  border-radius: 32rpx;
+  border: var(--border-thick);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 30rpx rgba(7, 193, 96, 0.4);
-  transition: transform 0.1s;
+  box-shadow: var(--shadow-hard);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .fab:active {
-  transform: scale(0.95);
+  box-shadow: none;
+  transform: translate(8rpx, 8rpx);
 }
 
 .fab-icon {
-  font-size: 60rpx;
-  font-weight: 300;
-  margin-top: -6rpx;
+  font-size: 64rpx;
+  font-weight: 900;
+  margin-top: -4rpx;
 }
 
 .loading,
