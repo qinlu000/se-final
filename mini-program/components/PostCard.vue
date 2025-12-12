@@ -1,5 +1,5 @@
 <template>
-  <view class="card">
+  <view class="card neu-card">
     <view class="header">
       <image class="avatar" :src="post.user?.avatar_url || defaultAvatar" mode="aspectFill" />
       <view class="info">
@@ -26,11 +26,11 @@
     <MediaGrid v-if="post.media_urls?.length" :media="post.media_urls" />
 
     <view class="footer">
-      <view class="action-item" @click.stop="emitLike">
-        <text class="icon" :class="{ liked: isLiked }">{{ isLiked ? '♥' : '♡' }}</text>
-        <text class="count" :class="{ liked: isLiked }">{{ isLiked ? '已赞' : '点赞' }}</text>
+      <view class="action-pill" :class="{ active: isLiked }" @click.stop="emitLike">
+        <text class="icon">{{ isLiked ? '♥' : '♡' }}</text>
+        <text class="count">{{ isLiked ? '已赞' : '点赞' }}</text>
       </view>
-      <view class="action-item" @click.stop="openComment">
+      <view class="action-pill" @click.stop="openComment">
         <text class="icon">💬</text>
         <text class="count">{{ localComments.length > 0 ? localComments.length : '评论' }}</text>
       </view>
@@ -53,7 +53,7 @@
         @confirm="submitComment"
         focus
       />
-      <button class="send-btn" @click="submitComment">发送</button>
+      <button class="send-btn neu-btn" @click="submitComment">发送</button>
     </view>
   </view>
 </template>
@@ -223,25 +223,25 @@ const formatTime = (timeStr) => {
 
 <style scoped>
 .card {
-  background: #ffffff;
-  padding: 30rpx;
-  border-radius: 16rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+  padding: 32rpx;
+  margin: 20rpx 8rpx 28rpx;
+  border-radius: var(--radius-m);
 }
 
 .header {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
+  gap: 20rpx;
 }
 
 .avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
-  margin-right: 20rpx;
-  background: #f3f4f6;
+  border: var(--border-thick);
+  background: var(--c-white);
+  box-shadow: var(--shadow-hard);
 }
 
 .info {
@@ -249,53 +249,52 @@ const formatTime = (timeStr) => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 80rpx;
+  min-height: 96rpx;
 }
 
 .name-row {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 4rpx;
+  margin-bottom: 6rpx;
 }
 
 .name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
+  font-size: 32rpx;
+  font-weight: 800;
+  letter-spacing: 0.6rpx;
 }
 
 .time {
   font-size: 24rpx;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
 .follow-btn {
   font-size: 22rpx;
-  color: #07c160;
-  background: rgba(7, 193, 96, 0.1);
-  padding: 4rpx 16rpx;
-  border-radius: 20rpx;
-  font-weight: 500;
+  padding: 6rpx 18rpx;
+  border-radius: var(--radius-full);
+  border: var(--border-thick);
+  background: var(--c-cyan);
+  font-weight: 700;
+  box-shadow: var(--shadow-hard);
 }
 
 .follow-btn.active {
-  background: #f3f4f6;
-  color: #9ca3af;
+  background: #ffffff;
 }
 
 .delete-btn {
-  margin-left: 16rpx;
-  color: #d1d5db;
-  font-size: 28rpx;
+  margin-left: 12rpx;
+  font-size: 32rpx;
   padding: 10rpx;
+  color: #111;
 }
 
 .content {
   font-size: 32rpx;
-  color: #1f2937;
-  line-height: 1.6;
-  margin-bottom: 20rpx;
+  line-height: 1.7;
+  margin-bottom: 16rpx;
   letter-spacing: 0.5rpx;
 }
 
@@ -303,39 +302,53 @@ const formatTime = (timeStr) => {
   display: flex;
   align-items: center;
   margin-top: 24rpx;
-  gap: 40rpx;
+  gap: 24rpx;
+  flex-wrap: wrap;
 }
 
-.action-item {
-  display: flex;
+.action-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 8rpx;
-  color: #6b7280;
+  gap: 10rpx;
+  padding: 12rpx 22rpx;
+  border-radius: var(--radius-full);
+  border: var(--border-thick);
+  background: var(--c-white);
+  box-shadow: var(--shadow-hard);
+  font-weight: 700;
+  color: var(--c-black);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+}
+
+.action-pill:active {
+  box-shadow: none;
+  transform: translate(4rpx, 4rpx);
+}
+
+.action-pill.active {
+  background: var(--c-pink);
+  color: var(--c-black);
 }
 
 .icon {
   font-size: 36rpx;
-  transition: all 0.2s;
 }
 
-.icon.liked {
-  color: #ef4444;
-  transform: scale(1.1);
+.action-pill.active .icon {
+  animation: like-pop 0.18s ease;
 }
 
 .count {
   font-size: 26rpx;
 }
 
-.count.liked {
-  color: #ef4444;
-}
-
 .comments-list {
-  margin-top: 24rpx;
-  background: #f9fafb;
-  padding: 20rpx;
-  border-radius: 12rpx;
+  margin-top: 28rpx;
+  padding: 22rpx;
+  border: var(--border-thick);
+  border-radius: var(--radius-m);
+  background: #ffffff;
+  box-shadow: var(--shadow-hard);
 }
 
 .comment-item {
@@ -349,12 +362,11 @@ const formatTime = (timeStr) => {
 }
 
 .comment-user {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 800;
 }
 
 .comment-content {
-  color: #4b5563;
+  color: #1f2937;
 }
 
 .comment-input-area {
@@ -366,21 +378,43 @@ const formatTime = (timeStr) => {
 
 .input {
   flex: 1;
-  height: 72rpx;
-  background: #f3f4f6;
-  border-radius: 36rpx;
+  height: 76rpx;
+  background: #ffffff;
+  border-radius: 38rpx;
   padding: 0 30rpx;
   font-size: 28rpx;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .send-btn {
   font-size: 28rpx;
-  background: #07c160;
-  color: white;
   padding: 0 32rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-  border-radius: 36rpx;
+  height: 76rpx;
+  line-height: 76rpx;
   margin: 0;
+}
+
+:deep(.media-grid) {
+  margin-top: 14rpx;
+}
+
+:deep(.media-item) {
+  border: var(--border-thick);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: var(--shadow-hard);
+}
+
+@keyframes like-pop {
+  0% {
+    transform: scale(1);
+  }
+  70% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

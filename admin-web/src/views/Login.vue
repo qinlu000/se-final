@@ -77,21 +77,73 @@ const onSubmit = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 20% 20%, #e0f2fe, transparent 25%),
-    radial-gradient(circle at 80% 0%, #ede9fe, transparent 25%),
-    #f8fafc;
+  padding: 32px;
+  background-color: #f3f3f3;
+  background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
+  background-size: 18px 18px;
+  font-family: 'DM Mono', 'SFMono-Regular', 'Menlo', monospace;
 }
 
 .login-card {
-  width: 360px;
-  padding: 32px;
+  width: 400px;
+  padding: 36px;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 2px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
   border-radius: 12px;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 20px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 800;
+  color: #000000;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 12px;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #000000 !important;
+  background: #ffffff;
+  transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+:deep(.el-input__wrapper.is-focus),
+:deep(.el-input__wrapper.is-focus-within) {
+  background: #ffe600;
+  box-shadow: none !important;
+}
+
+:deep(.el-button--primary) {
+  width: 100%;
+  background: #ffe600;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
+  border-radius: 12px;
+  font-weight: 900;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+:deep(.el-button--primary:hover) {
+  background: #fff177;
+}
+
+:deep(.el-button--primary:active) {
+  box-shadow: none;
+  transform: translate(6px, 6px);
 }
 </style>

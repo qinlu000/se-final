@@ -5,9 +5,10 @@
       <el-menu
         router
         :default-active="activeMenu"
-        background-color="#1f2937"
-        text-color="#e5e7eb"
-        active-text-color="#409eff"
+        background-color="#000000"
+        text-color="#ffffff"
+        active-text-color="#000000"
+        class="menu"
       >
         <el-menu-item index="/users">
           <el-icon><UserFilled /></el-icon>
@@ -55,15 +56,26 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+:global(:root) {
+  --c-black: #000000;
+  --c-white: #ffffff;
+  --c-yellow: #ffe600;
+  --c-pink: #ff6b6b;
+  --border-thick: 2px solid var(--c-black);
+  --shadow-hard: 8px 8px 0px var(--c-black);
+  --radius-m: 12px;
+}
+
 .layout {
   min-height: 100vh;
 }
 
 .aside {
-  background: #111827;
-  color: #e5e7eb;
+  background: var(--c-black);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
+  border-right: var(--border-thick);
 }
 
 .logo {
@@ -73,15 +85,18 @@ const handleLogout = () => {
   justify-content: center;
   font-weight: 700;
   font-size: 18px;
-  color: #f3f4f6;
+  color: var(--c-white);
+  border-bottom: var(--border-thick);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--c-white);
+  border-bottom: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  padding-right: 16px;
 }
 
 .title {
@@ -90,6 +105,25 @@ const handleLogout = () => {
 }
 
 .main {
-  background: #f3f4f6;
+  background: #f3f3f3;
+  padding: 16px;
 }
+
+:deep(.menu) {
+  border-right: none;
+}
+
+:deep(.menu .el-menu-item) {
+  font-weight: 800;
+  height: 56px;
+}
+
+:deep(.menu .el-menu-item.is-active) {
+  background: var(--c-yellow) !important;
+  color: var(--c-black) !important;
+  border: 2px solid var(--c-yellow);
+  box-shadow: 4px 4px 0px var(--c-black);
+  border-radius: 10px;
+}
+
 </style>

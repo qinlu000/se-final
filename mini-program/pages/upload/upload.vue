@@ -1,11 +1,10 @@
 <template>
   <view class="page">
-    <view class="top-bar">
+    <view class="top-bar neu-card">
       <text class="title">发布</text>
-      <button class="post-btn" :disabled="submitting" @click="submitPost">发布</button>
     </view>
 
-    <view class="form">
+    <view class="form neu-card">
       <textarea
         v-model="content"
         class="text-area"
@@ -27,6 +26,8 @@
         </view>
       </view>
     </view>
+
+    <button class="post-btn neu-btn full-btn" :disabled="submitting" @click="submitPost">发布</button>
   </view>
 </template>
 
@@ -115,38 +116,39 @@ const submitPost = async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #ededed;
-  padding-bottom: 40rpx;
+  background-color: var(--c-bg);
+  background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
+  background-size: 18px 18px;
+  padding: 24rpx 24rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
 .top-bar {
+  padding: 22rpx 26rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 32rpx;
-  background: #ffffff;
+  justify-content: flex-start;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .title {
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.post-btn {
-  background: #07c160;
-  color: #ffffff;
-  border: none;
-  border-radius: 30rpx;
-  padding: 0 32rpx;
-  height: 60rpx;
-  line-height: 60rpx;
+  font-weight: 900;
+  font-size: 34rpx;
+  letter-spacing: 0.6rpx;
 }
 
 .form {
-  margin: 16rpx;
-  background: #ffffff;
-  border-radius: 16rpx;
-  padding: 20rpx;
+  background: var(--c-white);
+  border-radius: var(--radius-m);
+  padding: 24rpx;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
 }
 
 .text-area {
@@ -154,25 +156,32 @@ const submitPost = async () => {
   min-height: 200rpx;
   font-size: 30rpx;
   line-height: 1.5;
+  border: var(--border-thick);
+  border-radius: var(--radius-m);
+  background: var(--c-white);
+  padding: 18rpx;
+  box-shadow: var(--shadow-hard);
 }
 
 .picker {
-  margin-top: 16rpx;
+  margin-top: 10rpx;
 }
 
 .picker-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .img-box {
   position: relative;
   width: 100%;
   padding-top: 100%;
-  border-radius: 12rpx;
+  border-radius: var(--radius-m);
   overflow: hidden;
-  background: #f3f4f6;
+  background: var(--c-white);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .img-box image {
@@ -187,35 +196,62 @@ const submitPost = async () => {
   position: absolute;
   top: 8rpx;
   right: 8rpx;
-  width: 36rpx;
-  height: 36rpx;
+  width: 40rpx;
+  height: 40rpx;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--c-black);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
+  border: var(--border-thin);
 }
 
 .add-box {
   width: 100%;
   padding-top: 100%;
-  border-radius: 12rpx;
-  border: 2rpx dashed #cbd5e1;
-  color: #6b7280;
+  border-radius: var(--radius-m);
+  border: 2rpx dashed var(--c-black);
+  color: var(--c-black);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 8rpx;
+  background: var(--c-white);
+  box-shadow: var(--shadow-hard);
+  transition: background 0.1s ease;
+}
+
+.add-box:active {
+  background: var(--c-yellow);
 }
 
 .add-box text {
-  font-size: 40rpx;
+  font-size: 44rpx;
+  font-weight: 900;
 }
 
 .hint {
   font-size: 24rpx;
+  font-weight: 700;
+}
+
+.post-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-hard);
+}
+
+.post-btn:disabled {
+  opacity: 0.6;
+}
+
+.full-btn {
+  margin-top: 4rpx;
 }
 </style>

@@ -123,10 +123,11 @@ onMounted(fetchUsers)
 
 <style scoped>
 .page {
-  background: #ffffff;
+  background: var(--c-white);
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .page-header {
@@ -139,6 +140,22 @@ onMounted(fetchUsers)
 .actions {
   display: flex;
   align-items: center;
+}
+
+:deep(.el-table) {
+  border: 1px solid var(--c-black);
+  box-shadow: var(--shadow-hard);
+}
+
+:deep(.el-table th.el-table__cell) {
+  background: var(--c-black);
+  color: var(--c-white);
+  font-weight: 900;
+  border: 1px solid var(--c-black);
+}
+
+:deep(.el-table td.el-table__cell) {
+  border: 1px solid var(--c-black);
 }
 
 .user-cell {

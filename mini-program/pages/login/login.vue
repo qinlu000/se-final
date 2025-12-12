@@ -1,24 +1,24 @@
 <template>
   <view class="page">
-    <view class="card">
+    <view class="card neu-card">
       <view class="title">{{ isRegister ? '注册账号' : '用户登录' }}</view>
       
       <view class="form-item">
         <text class="label">用户名</text>
-        <input v-model="username" placeholder="输入用户名" />
+        <input class="input" v-model="username" placeholder="输入用户名" />
       </view>
       
       <view class="form-item" v-if="isRegister">
         <text class="label">昵称</text>
-        <input v-model="nickname" placeholder="输入昵称 (可选)" />
+        <input class="input" v-model="nickname" placeholder="输入昵称 (可选)" />
       </view>
 
       <view class="form-item">
         <text class="label">密码</text>
-        <input v-model="password" password placeholder="输入密码" />
+        <input class="input" v-model="password" password placeholder="输入密码" />
       </view>
       
-      <button class="submit" :disabled="loading" @click="submit">
+      <button class="submit neu-btn" :disabled="loading" @click="submit">
         {{ isRegister ? '注册并登录' : '登录' }}
       </button>
 
@@ -101,21 +101,24 @@ const login = async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #ededed;
+  background-color: var(--c-bg);
+  background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
+  background-size: 18px 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24rpx;
+  padding: 32rpx;
   box-sizing: border-box;
 }
 
 .card {
   width: 90%;
   max-width: 640rpx;
-  background: #ffffff;
-  border-radius: 18rpx;
-  padding: 40rpx 32rpx;
-  box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.08);
+  background: var(--c-white);
+  border-radius: var(--radius-m);
+  padding: 44rpx 36rpx;
+  border: var(--border-thick);
+  box-shadow: 8px 8px 0px var(--c-black);
 }
 
 .title {
@@ -135,32 +138,45 @@ const login = async () => {
   color: #4b5563;
 }
 
-input {
+.input {
   width: 100%;
   height: 88rpx;
-  border-radius: 12rpx;
-  padding: 0 16rpx;
-  background: #f3f4f6;
+  border-radius: var(--radius-m);
+  padding: 0 18rpx;
+  background: var(--c-white);
   box-sizing: border-box;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  font-size: 28rpx;
+}
+
+.input:focus {
+  background: var(--c-yellow);
+  outline: none;
+  box-shadow: none;
 }
 
 .submit {
   width: 100%;
   height: 88rpx;
-  border-radius: 12rpx;
-  background: #07c160;
-  color: #ffffff;
+  border-radius: var(--radius-m);
+  background: var(--c-yellow);
+  color: var(--c-black);
   font-size: 30rpx;
-  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  font-weight: 900;
+  margin-top: 12rpx;
 }
 
 .switch-mode {
   text-align: center;
   margin-top: 24rpx;
-  color: #07c160;
+  color: var(--c-black);
   font-size: 28rpx;
+  font-weight: 700;
 }
 </style>

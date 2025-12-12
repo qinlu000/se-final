@@ -1,19 +1,19 @@
 <template>
   <view class="page">
-    <view class="header-bg">
+    <view class="header-bg neu-card">
       <view class="settings-btn" @click="handleLogout">
         <text class="settings-icon">⚙️</text>
       </view>
     </view>
     
-    <view class="profile-card">
+    <view class="profile-card neu-card">
       <view class="avatar-container">
         <image class="avatar" :src="profile.avatar_url || defaultAvatar" mode="aspectFill" />
       </view>
       <view class="info">
         <text class="name">{{ profile.nickname || profile.username || '未登录' }}</text>
         <text class="sub">加入时间：{{ formatDate(profile.created_at) }}</text>
-        <view class="edit-btn" @click="goEditProfile">
+        <view class="edit-btn neu-btn" @click="goEditProfile">
           <text>编辑资料</text>
         </view>
       </view>
@@ -145,15 +145,18 @@ onMounted(async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #f8f8f8;
+  background-color: var(--c-bg);
+  background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
+  background-size: 18px 18px;
   padding-bottom: 40rpx;
 }
 
 .header-bg {
-  height: 360rpx;
-  background: linear-gradient(135deg, #07c160, #059669);
-  border-bottom-left-radius: 48rpx;
-  border-bottom-right-radius: 48rpx;
+  height: 320rpx;
+  background: var(--c-white);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  border-radius: 0 0 var(--radius-m) var(--radius-m);
   position: relative;
 }
 
@@ -161,14 +164,15 @@ onMounted(async () => {
   position: absolute;
   top: 100rpx; /* Adjust for status bar */
   right: 40rpx;
-  width: 64rpx;
-  height: 64rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  width: 72rpx;
+  height: 72rpx;
+  background: var(--c-yellow);
+  border: var(--border-thick);
+  border-radius: var(--radius-m);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-hard);
 }
 
 .settings-icon {
@@ -177,10 +181,11 @@ onMounted(async () => {
 
 .profile-card {
   margin: -120rpx 30rpx 0;
-  background: #ffffff;
-  border-radius: 32rpx;
+  background: var(--c-white);
+  border-radius: var(--radius-m);
   padding: 0 40rpx 50rpx;
-  box-shadow: 0 12rpx 32rpx rgba(0,0,0,0.08);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -188,10 +193,11 @@ onMounted(async () => {
 
 .avatar-container {
   margin-top: -70rpx;
-  padding: 10rpx;
-  background: #ffffff;
+  padding: 12rpx;
+  background: var(--c-white);
   border-radius: 50%;
-  box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.1);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
 }
 
 .avatar {
@@ -213,24 +219,22 @@ onMounted(async () => {
 .name {
   font-size: 44rpx;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--c-black);
   display: block;
   margin-bottom: 8rpx;
 }
 
 .sub {
   font-size: 24rpx;
-  color: #9ca3af;
+  color: #4b5563;
   margin-bottom: 24rpx;
 }
 
 .edit-btn {
-  padding: 10rpx 32rpx;
-  border: 2rpx solid #e5e7eb;
-  border-radius: 30rpx;
-  font-size: 24rpx;
-  color: #4b5563;
-  font-weight: 500;
+  padding: 14rpx 36rpx;
+  font-size: 26rpx;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-hard);
 }
 
 .stats-row {
@@ -239,37 +243,40 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   padding: 0 20rpx;
+  margin-top: 10rpx;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10rpx 20rpx;
-  border-radius: 16rpx;
-  transition: background 0.2s;
-}
-
-.stat-hover {
-  background: #f9fafb;
+  padding: 14rpx 20rpx;
+  min-width: 140rpx;
+  gap: 6rpx;
+  font-weight: 800;
 }
 
 .stat-num {
   font-size: 40rpx;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: var(--c-black);
   margin-bottom: 4rpx;
 }
 
 .stat-label {
   font-size: 24rpx;
-  color: #6b7280;
+  color: #374151;
+  font-weight: 700;
+}
+
+.stat-hover {
+  background: #fff7a6;
 }
 
 .stat-divider {
   width: 2rpx;
-  height: 40rpx;
-  background: #f3f4f6;
+  height: 76rpx;
+  background: var(--c-black);
 }
 
 .section {
@@ -286,7 +293,7 @@ onMounted(async () => {
 .section-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--c-black);
 }
 
 .empty {
