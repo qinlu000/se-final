@@ -31,6 +31,19 @@ source venv/bin/activate
 .\venv\Scripts\activate
 ```
 
+### 2.3 Configure Environment Variables (AI Setup)
+The system requires an LLM provider for AI features. We use **OpenRouter**.
+1.  Create a file named `.env` in the `backend/` directory.
+2.  Add your API Key:
+    ```env
+    DATABASE_URL=postgresql+asyncpg://postgres:password@localhost/moments_db
+    SECRET_KEY=your_secret_key_here
+    OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxx
+    # Optional:
+    OPENROUTER_MODEL=deepseek/deepseek-chat
+    ```
+
+
 ### 2.3 Install Dependencies
 ```bash
 pip install -r requirements.txt

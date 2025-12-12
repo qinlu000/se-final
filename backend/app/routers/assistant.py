@@ -1,4 +1,5 @@
 import hashlib
+import json
 import time
 from typing import Dict, Tuple
 
@@ -36,7 +37,7 @@ def _check_rate_limit(ip: str) -> None:
 
 
 def _make_cache_key(body: AssistantRequest) -> str:
-    raw = f"{body.content}|{body.mode}|{body.tone}|{body.include_tags}"
+    raw = f"{body.content}|{body.mode}|{body.tone}|{body.include_tags}|{body.target_lang}"
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
@@ -70,6 +71,7 @@ async def run_assistant(
         mode=body.mode,
         tone=body.tone,
         include_tags=body.include_tags,
+        target_lang=body.target_lang,
     )
 
     # 5) Sensitive output check
@@ -78,6 +80,8 @@ async def run_assistant(
           result.get("summary") or "",
           " ".join(result.get("suggestions") or []),
           " ".join(result.get("tags") or []),
+          result.get("translated_content") or "",
+          json.dumps(result.get("vibe") or {}),
         ]
     )
     try:

@@ -12,6 +12,9 @@
         :maxlength="500"
         auto-height
       />
+      <view class="ai-row">
+        <button class="neu-btn ai-btn" @click="openMagicCompose">🪄 AI 帮写</button>
+      </view>
 
       <view class="picker">
         <view class="picker-grid">
@@ -34,10 +37,12 @@
 <script setup>
 import { ref } from 'vue'
 import { post, BASE_URL } from '../../utils/request'
+import { askAI } from '../../api/ai'
 
 const content = ref('')
 const images = ref([])
 const submitting = ref(false)
+const aiLoading = ref(false)
 
 const chooseImages = () => {
   uni.chooseImage({
@@ -51,6 +56,54 @@ const chooseImages = () => {
 
 const removeImage = (idx) => {
   images.value.splice(idx, 1)
+}
+
+const handleMagicResult = async (mode) => {
+  if (!content.value.trim()) {
+    uni.showToast({ title: '先写点内容吧', icon: 'none' })
+    return
+  }
+  aiLoading.value = true
+  uni.showLoading({ title: 'AI生成中...', mask: true })
+  try {
+    const res = await askAI({ content: content.value, mode })
+    if (res?.status === 'sensitive') {
+      uni.showToast({ title: '内容包含敏感信息', icon: 'none' })
+      return
+    }
+    if (mode === 'title' && res?.suggestions?.length) {
+      uni.showActionSheet({
+        itemList: res.suggestions.slice(0, 3),
+        success: (r) => {
+          content.value = res.suggestions[r.tapIndex] + '\n' + content.value
+        }
+      })
+    } else if (res?.summary) {
+      content.value = res.summary
+      uni.showToast({ title: '已更新内容', icon: 'success' })
+    } else {
+      uni.showToast({ title: 'AI没有生成结果', icon: 'none' })
+    }
+  } catch (err) {
+    console.error(err)
+    uni.showToast({ title: 'AI暂不可用', icon: 'none' })
+  } finally {
+    aiLoading.value = false
+    uni.hideLoading()
+  }
+}
+
+const openMagicCompose = () => {
+  if (aiLoading.value) return
+  uni.showActionSheet({
+    itemList: ['润色', '加Emoji', '生成标题'],
+    success: (res) => {
+      const idx = res.tapIndex
+      if (idx === 0) handleMagicResult('polish')
+      if (idx === 1) handleMagicResult('emojify')
+      if (idx === 2) handleMagicResult('title')
+    }
+  })
 }
 
 const uploadSingle = (filePath) =>
@@ -160,6 +213,17 @@ const submitPost = async () => {
   border-radius: var(--radius-m);
   background: var(--c-white);
   padding: 18rpx;
+  box-shadow: var(--shadow-hard);
+}
+
+.ai-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ai-btn {
+  padding: 14rpx 26rpx;
+  font-size: 26rpx;
   box-shadow: var(--shadow-hard);
 }
 

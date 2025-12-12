@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from openai import AsyncOpenAI
 
@@ -19,6 +19,8 @@ def _fallback_summary(content: str) -> Dict[str, Any]:
         "summary": snippet or None,
         "tags": _keyword_tags(clean),
         "suggestions": [],
+        "translated_content": None,
+        "vibe": None,
     }
 
 
@@ -47,15 +49,19 @@ async def analyze_content(text: str) -> List[str]:
 
 
 async def ask_ai_assistant(
-    content: str, mode: str = "summary", tone: str = "friendly", include_tags: bool = True
+    content: str,
+    mode: str = "summary",
+    tone: str = "friendly",
+    include_tags: bool = True,
+    target_lang: str = "zh",
 ) -> Dict[str, Any]:
     """
-    Call DeepSeek via OpenRouter to produce summary/tags/reply suggestions.
+    Call DeepSeek via OpenRouter to produce summary/tags/reply suggestions / magic compose.
     Falls back to deterministic heuristics if API key or call is unavailable.
     """
     clean = (content or "").strip()
     if not clean:
-        return {"summary": None, "tags": [], "suggestions": []}
+        return {"summary": None, "tags": [], "suggestions": [], "translated_content": None, "vibe": None}
 
     # Fallback path if no API key configured
     if client is None:
@@ -69,21 +75,44 @@ async def ask_ai_assistant(
                 f"{base} 再多讲讲吧！",
                 f"想听听细节～",
             ]
+        if mode == "polish":
+            resp["summary"] = f"{clean}"
+        if mode == "emojify":
+            resp["summary"] = f"{clean} 😊"
+        if mode == "title":
+            resp["suggestions"] = [
+                f"灵感速递：{clean[:12]}",
+                f"{clean[:10]} · 精选",
+                f"{clean[:8]} · 热门",
+            ]
+        if mode == "translate":
+            resp["translated_content"] = clean
+        if mode == "vibe":
+            resp["vibe"] = {"label": "neutral", "score": 0.5, "emoji": "😐", "color": "#FFE600"}
+            resp["summary"] = resp["summary"] or clean
         return resp
 
     system_prompt = (
-        "You are a concise social-media assistant. "
-        "Return ONLY valid JSON with keys: summary (string|null, max 120 chars), "
-        "tags (array of strings, lowercase, no #), suggestions (array of strings, max 3). "
-        "Respect tone and mode. If a field is not applicable, use null or empty array."
+        "You are a concise social-media assistant. Return ONLY valid JSON.\n"
+        "Supported modes:\n"
+        "- summary: summary (<=120 chars), optional tags\n"
+        "- tags: only tags\n"
+        "- reply: suggestions (max 3)\n"
+        "- polish: rewrite content fluently in same language\n"
+        "- emojify: add relevant emojis to text, keep meaning\n"
+        "- title: generate 3 catchy titles in suggestions\n"
+        "- translate: translate content to target_lang\n"
+        "- vibe: sentiment analysis with {label, score, emoji, color}\n"
+        "JSON keys: summary (string|null), tags (array), suggestions (array), translated_content (string|null), vibe (object|null)\n"
+        "Tone options: friendly|professional|humorous. Do not include additional keys."
     )
 
     user_prompt = f"""
-Content to analyze:
-\"\"\"{clean}\"\"\"
-Mode: {mode} (options: summary, reply, tags)
-Tone: {tone} (friendly | professional | humorous)
+Content: \"\"\"{clean}\"\"\"
+Mode: {mode}
+Tone: {tone}
 Include tags: {include_tags}
+Target language: {target_lang}
 """
 
     try:
@@ -103,6 +132,8 @@ Include tags: {include_tags}
             "summary": data.get("summary"),
             "tags": data.get("tags") if include_tags else [],
             "suggestions": data.get("suggestions") or [],
+            "translated_content": data.get("translated_content"),
+            "vibe": data.get("vibe"),
         }
     except Exception:
         return _fallback_summary(clean)

@@ -96,9 +96,19 @@ class UploadResponse(BaseModel):
 
 class AssistantRequest(BaseModel):
     content: str
-    mode: Literal["summary", "reply", "tags"] = "summary"
+    mode: Literal[
+        "summary",
+        "reply",
+        "tags",
+        "polish",
+        "emojify",
+        "title",
+        "translate",
+        "vibe",
+    ] = "summary"
     tone: Literal["friendly", "professional", "humorous"] = "friendly"
     include_tags: bool = True
+    target_lang: str = "zh"
 
 
 class AssistantResponse(BaseModel):
@@ -106,3 +116,5 @@ class AssistantResponse(BaseModel):
     summary: Optional[str] = None
     suggestions: List[str] = []
     tags: List[str] = []
+    translated_content: Optional[str] = None
+    vibe: Optional[dict] = None

@@ -57,7 +57,15 @@ We avoid using too many utility libraries (like Tailwind) to maintain strict con
 ### 3.3 Component Pattern: `PostCard.vue`
 *   **Avatar**: `border: 2px solid black`.
 *   **Action Pills**: Instead of plain icons, we use "Pills" (Icon + Text) with borders.
-    *   *Why?* It increases the touch target and fits the "chunky" aesthetic.
+*   *Why?* It increases the touch target and fits the "chunky" aesthetic.
+
+### 3.4 Special Components: AI Intelligence
+For AI features, we introduce a **Glassmorphism** variant to signify "Magic/Future".
+*   **Base Style**: `backdrop-filter: blur(10px); background: rgba(255,255,255,0.8);`
+*   **Vibe Check Colors**:
+    *   Positive: `background: #FFE60022` (Yellow Tint)
+    *   Negative: `background: #93C5FD22` (Blue Tint)
+*   **Typography**: Use monospaced font (`DM Mono`) for AI generated text to simulate a terminal/robot effect.
 
 ---
 
