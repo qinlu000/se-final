@@ -9,19 +9,52 @@ _api_key = os.getenv("OPENROUTER_API_KEY")
 _base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 _model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v3")
 
-client = AsyncOpenAI(api_key=_api_key, base_url=_base_url) if _api_key else None
+# Configure client with explicit timeout and retries
+client = AsyncOpenAI(
+    api_key=_api_key, 
+    base_url=_base_url,
+    timeout=60.0,
+    max_retries=3
+) if _api_key else None
 
 
-def _fallback_summary(content: str) -> Dict[str, Any]:
+def _fallback_summary(content: str, mode: str = "summary") -> Dict[str, Any]:
     clean = (content or "").strip()
     snippet = clean[:120] + ("..." if len(clean) > 120 else "")
-    return {
+    res = {
         "summary": snippet or None,
         "tags": _keyword_tags(clean),
         "suggestions": [],
         "translated_content": None,
         "vibe": None,
     }
+
+    if mode == "tags":
+        res["summary"] = None
+    if mode == "reply":
+        base = res["summary"] or "已阅，期待更多分享！"
+        res["suggestions"] = [
+            f"{base}",
+            f"{base} 再多讲讲吧！",
+            f"想听听细节～",
+        ]
+    if mode == "polish":
+        res["summary"] = f"{clean}"
+    if mode == "emojify":
+        res["summary"] = f"{clean} 😊"
+    if mode == "title":
+        res["suggestions"] = [
+            f"灵感速递：{clean[:12]}",
+            f"{clean[:10]} · 精选",
+            f"{clean[:8]} · 热门",
+        ]
+    if mode == "translate":
+        res["translated_content"] = clean
+    if mode == "vibe":
+        res["vibe"] = {"label": "neutral", "score": 0.5, "emoji": "😐", "color": "#FFE600"}
+        res["summary"] = res["summary"] or clean
+    
+    return res
 
 
 def _keyword_tags(text: str) -> List[str]:
@@ -65,46 +98,21 @@ async def ask_ai_assistant(
 
     # Fallback path if no API key configured
     if client is None:
-        resp = _fallback_summary(clean)
-        if mode == "tags":
-            resp["summary"] = None
-        if mode == "reply":
-            base = resp["summary"] or "已阅，期待更多分享！"
-            resp["suggestions"] = [
-                f"{base}",
-                f"{base} 再多讲讲吧！",
-                f"想听听细节～",
-            ]
-        if mode == "polish":
-            resp["summary"] = f"{clean}"
-        if mode == "emojify":
-            resp["summary"] = f"{clean} 😊"
-        if mode == "title":
-            resp["suggestions"] = [
-                f"灵感速递：{clean[:12]}",
-                f"{clean[:10]} · 精选",
-                f"{clean[:8]} · 热门",
-            ]
-        if mode == "translate":
-            resp["translated_content"] = clean
-        if mode == "vibe":
-            resp["vibe"] = {"label": "neutral", "score": 0.5, "emoji": "😐", "color": "#FFE600"}
-            resp["summary"] = resp["summary"] or clean
-        return resp
+        return _fallback_summary(clean, mode)
 
     system_prompt = (
         "You are a concise social-media assistant. Return ONLY valid JSON.\n"
         "Supported modes:\n"
-        "- summary: summary (<=120 chars), optional tags\n"
-        "- tags: only tags\n"
-        "- reply: suggestions (max 3)\n"
-        "- polish: rewrite content fluently in same language\n"
-        "- emojify: add relevant emojis to text, keep meaning\n"
-        "- title: generate 3 catchy titles in suggestions\n"
-        "- translate: translate content to target_lang\n"
-        "- vibe: sentiment analysis with {label, score, emoji, color}\n"
-        "JSON keys: summary (string|null), tags (array), suggestions (array), translated_content (string|null), vibe (object|null)\n"
-        "Tone options: friendly|professional|humorous. Do not include additional keys."
+        "- summary: summarize content (<=120 chars) -> result in 'summary'\n"
+        "- tags: generate hashtags -> result in 'tags'\n"
+        "- reply: generate 3 reply suggestions -> result in 'suggestions'\n"
+        "- polish: rewrite content fluently -> result in 'summary'\n"
+        "- emojify: add emojis to content -> result in 'summary'\n"
+        "- title: generate 3 catchy titles -> result in 'suggestions'\n"
+        "- translate: translate to target_lang -> result in 'translated_content'\n"
+        "- vibe: analyze sentiment -> result in 'vibe'\n"
+        "JSON keys: summary, tags, suggestions, translated_content, vibe\n"
+        "Tone options: friendly|professional|humorous."
     )
 
     user_prompt = f"""
@@ -115,6 +123,7 @@ Include tags: {include_tags}
 Target language: {target_lang}
 """
 
+    # ... (inside ask_ai_assistant)
     try:
         completion = await client.chat.completions.create(
             model=_model,
@@ -127,13 +136,33 @@ Target language: {target_lang}
             max_tokens=400,
         )
         raw = completion.choices[0].message.content or "{}"
+        
+        # 1. Clean Markdown wrappers (Robustness Fix)
+        if "```" in raw:
+            raw = raw.replace("```json", "").replace("```", "").strip()
+        
         data = json.loads(raw)
-        return {
+        
+        # 2. Extract fields
+        res = {
             "summary": data.get("summary"),
             "tags": data.get("tags") if include_tags else [],
             "suggestions": data.get("suggestions") or [],
             "translated_content": data.get("translated_content"),
             "vibe": data.get("vibe"),
         }
-    except Exception:
-        return _fallback_summary(clean)
+        
+        # 3. Validate Result (Prevent "No Result" error)
+        # If specific mode return is empty, treat as failure to trigger smart fallback
+        if mode == "title" and not res["suggestions"]:
+            raise ValueError("Empty suggestions for title")
+        if mode == "translate" and not res["translated_content"]:
+            raise ValueError("Empty translation")
+        if mode in ["summary", "polish", "emojify"] and not res["summary"]:
+             raise ValueError("Empty summary")
+
+        return res
+
+    except Exception as e:
+        print(f"[AI Error] {e}") # Optional logging
+        return _fallback_summary(clean, mode)

@@ -5,11 +5,11 @@
         <view
           v-for="tab in tabs"
           :key="tab.value"
-          :class="['tab', selectedTab === tab.value ? 'active' : '']"
+          class="tab-item"
+          :class="{ active: selectedTab === tab.value }"
           @click="switchTab(tab.value)"
         >
           <text class="tab-text">{{ tab.label }}</text>
-          <view class="tab-line" v-if="selectedTab === tab.value"></view>
         </view>
       </view>
     </view>
@@ -167,59 +167,43 @@ onReachBottom(() => {
 }
 
 .tabs-container {
-  background: var(--c-white);
-  padding: 16rpx 0 6rpx;
+  background: var(--c-bg); /* Transparent/match bg to show spacing */
+  padding: 24rpx 0 16rpx;
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: var(--border-thick);
-  box-shadow: var(--shadow-hard);
+  /* Remove border-bottom to float the tabs */
+  /* border-bottom: var(--border-thick); */
 }
 
 .tabs {
   display: flex;
   justify-content: center;
-  gap: 40rpx;
+  gap: 32rpx; /* Space between pills */
 }
 
-.tab {
-  padding: 16rpx 28rpx;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: var(--radius-full);
-  border: var(--border-thin);
-  background: #ffffff;
-  box-shadow: var(--shadow-hard);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+/* Base Pill Style */
+.tab-item {
+  padding: 16rpx 48rpx;
+  border-radius: 999px; /* Full pill */
+  border: var(--border-thick);
+  background: var(--c-white);
+  box-shadow: 4rpx 4rpx 0px 0px #000;
+  transition: all 0.1s ease;
 }
 
-.tab.active {
+/* Active State */
+.tab-item.active {
   background: var(--c-yellow);
-  transform: translate(0rpx, -4rpx);
+  transform: translate(2rpx, 2rpx); /* Pressed effect */
+  box-shadow: 2rpx 2rpx 0px 0px #000;
 }
 
 .tab-text {
-  font-size: 32rpx;
+  font-size: 30rpx;
   color: #111;
   font-weight: 800;
-  letter-spacing: 0.4rpx;
-}
-
-.tab.active .tab-text {
-  color: var(--c-black);
-  font-size: 34rpx;
-}
-
-.tab-line {
-  width: 44rpx;
-  height: 10rpx;
-  background: var(--c-yellow);
-  border: var(--border-thick);
-  border-radius: var(--radius-full);
-  position: absolute;
-  bottom: -10rpx;
+  letter-spacing: 1rpx;
 }
 
 .feed {

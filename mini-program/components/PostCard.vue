@@ -247,7 +247,7 @@ const formatTime = (timeStr) => {
 <style scoped>
 .card {
   padding: 32rpx;
-  margin: 20rpx 8rpx 28rpx;
+  margin: 24rpx 24rpx 32rpx; /* Increased margins */
   border-radius: var(--radius-m);
 }
 
@@ -355,6 +355,7 @@ const formatTime = (timeStr) => {
 
 .ai-btn {
   background: var(--c-yellow);
+  animation: breathe 3s infinite ease-in-out; /* Breathing animation */
 }
 
 .icon {
@@ -434,14 +435,14 @@ const formatTime = (timeStr) => {
 }
 
 @keyframes like-pop {
-  0% {
-    transform: scale(1);
-  }
-  70% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  70% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+
+@keyframes breathe {
+  0% { box-shadow: 4rpx 4rpx 0px 0px #000; }
+  50% { box-shadow: 6rpx 6rpx 0px 0px #000; transform: translate(-1rpx, -1rpx); }
+  100% { box-shadow: 4rpx 4rpx 0px 0px #000; }
 }
 </style>

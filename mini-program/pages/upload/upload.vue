@@ -287,7 +287,7 @@ const submitPost = async () => {
   width: 100%;
   padding-top: 100%;
   border-radius: var(--radius-m);
-  border: 2rpx dashed var(--c-black);
+  border: var(--border-thick);
   color: var(--c-black);
   display: flex;
   align-items: center;

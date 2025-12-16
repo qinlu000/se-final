@@ -153,7 +153,15 @@ onMounted(async () => {
 
 .header-bg {
   height: 320rpx;
-  background: var(--c-white);
+  background-color: var(--c-white);
+  /* Energetic diagonal stripes */
+  background-image: repeating-linear-gradient(
+    45deg,
+    #fff 0,
+    #fff 20px,
+    #fff7a6 20px,
+    #fff7a6 40px
+  );
   border: var(--border-thick);
   box-shadow: var(--shadow-hard);
   border-radius: 0 0 var(--radius-m) var(--radius-m);
@@ -189,6 +197,9 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Fix layering issue */
+  position: relative;
+  z-index: 1;
 }
 
 .avatar-container {
@@ -250,10 +261,22 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14rpx 20rpx;
-  min-width: 140rpx;
+  padding: 16rpx 24rpx;
+  min-width: 160rpx;
   gap: 6rpx;
   font-weight: 800;
+  
+  /* New Polish */
+  background: var(--c-bg);
+  border: var(--border-thick);
+  border-radius: var(--radius-s);
+  box-shadow: 4rpx 4rpx 0px 0px #000;
+  transition: transform 0.1s;
+}
+
+.stat-item:active {
+  transform: translate(2rpx, 2rpx);
+  box-shadow: 2rpx 2rpx 0px 0px #000;
 }
 
 .stat-num {
@@ -274,9 +297,7 @@ onMounted(async () => {
 }
 
 .stat-divider {
-  width: 2rpx;
-  height: 76rpx;
-  background: var(--c-black);
+  display: none;
 }
 
 .section {
@@ -304,6 +325,12 @@ onMounted(async () => {
   padding: 80rpx 0;
   color: #9ca3af;
   gap: 20rpx;
+  
+  /* Boxed Empty State */
+  margin: 40rpx 0;
+  border: 4rpx dashed #d1d5db;
+  border-radius: var(--radius-m);
+  background: #fdfdfd;
 }
 
 .empty-img {
