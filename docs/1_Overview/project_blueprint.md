@@ -24,7 +24,7 @@ A multimedia social platform consisting of a **Mini Program Frontend** for users
 
 ### Tech Stack
 - **Backend:** Python 3.10+ with **FastAPI**. (Chosen for performance and easy AI integration).
-- **Database:** **PostgreSQL** (Production) or **SQLite** (Dev). ORM: **SQLAlchemy** or **Prisma Client Python**.
+- **Database:** **PostgreSQL** (Production) or **SQLite** (Dev). ORM: **SQLAlchemy (Async)**.
 - **Admin Frontend:** **Vue 3** + **Vite** + **Element Plus**.
 - **Mini Program:** **Uni-app** (Vue 3 based) -> Compiles to WeChat Mini Program.
 - **Storage:** Local Filesystem (for simplicity) or MinIO/S3 compatible.
@@ -49,8 +49,6 @@ erDiagram
     User ||--o{ Rating : "gives"
     Post ||--o{ Comment : "has"
     Post ||--o{ Rating : "receives"
-    Post ||--o{ PostTag : "has"
-    Tag ||--o{ PostTag : "tagged in"
 
     User {
         int id PK
@@ -68,6 +66,7 @@ erDiagram
         text content
         string media_type "image/video/text"
         json media_urls "List of URLs"
+        json tags "List of Tags"
         datetime created_at
         datetime updated_at
     }
@@ -86,16 +85,6 @@ erDiagram
         int user_id FK
         int score "1-5"
         datetime created_at
-    }
-
-    Tag {
-        int id PK
-        string name UK
-    }
-
-    PostTag {
-        int post_id FK
-        int tag_id FK
     }
 ```
 
@@ -152,8 +141,8 @@ erDiagram
 4.  **UI**: Use a UI library like `uView` or standard CSS for a clean "Moments" look.
 
 ### Phase 4: Bonus Features
-1.  **Sensitive Word Filter**: Middleware in FastAPI to check text content against a list.
-2.  **LLM Integration**: Async task to send post content to an LLM API (e.g., OpenAI/Gemini) for sentiment analysis or auto-tagging.
+1.  **Sensitive Word Filter**: Middleware in FastAPI to check text content against a list ("Sandwich Defense").
+2.  **LLM Integration**: Synchronous Proxy Pattern calling OpenRouter deepseek-chat, with local Caching to reduce costs.
 
 ## 6. Directory Structure
 ```

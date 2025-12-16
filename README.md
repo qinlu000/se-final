@@ -1,30 +1,42 @@
-# Multimedia Social Platform ("Moments" Clone)
+# Multimedia Social Platform ("Moments")
 
-This project is a multimedia social platform consisting of:
-- **Backend**: Python FastAPI (`/backend`)
-- **Admin Web**: Vue 3 + Vite (`/admin-web`)
-- **Mini Program**: Uni-app (`/mini-program`)
+This is the final project for the **Software Engineering** course.
 
-## Setup & Development
-For detailed step-by-step instructions, please refer to [RUNNING_GUIDE.md](docs/RUNNING_GUIDE.md).
+## 📂 Documentation Guide
 
-### Backend
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
+The documentation is organized in the `docs/` directory:
 
-### Admin Web
-```bash
-cd admin-web
-npm install
-npm run dev
-```
+### [1. Project Overview](docs/1_Overview/)
+*   **[Running Guide](docs/4_Manuals/RUNNING_GUIDE.md)**: 🚀 Start here!
+*   **[Architecture](docs/1_Overview/ARCHITECTURE.md)**: High-level system design.
+*   **[Blueprint](docs/1_Overview/project_blueprint.md)**: Initial project vision.
 
-### Mini Program
-Open `/mini-program` in HBuilderX or run via CLI if configured.
+### [2. SE Analysis](docs/2_SE_Analysis/)
+*   Detailed breakdown of the engineering process:
+    *   Requirement Analysis (FR/NFR)
+    *   Architecture Patterns
+    *   Quality Assurance
+    *   SDLC & Maintenance
 
-## Architecture
-See [project_blueprint.md](docs/project_blueprint.md) for the initial design.
-For a detailed technical overview, please refer to [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+### [3. Technical Reports](docs/3_Technical_Reports/)
+*   Specific technical implementation details for:
+    *   **Backend** (FastAPI)
+    *   **Frontend** (UniApp)
+    *   **AI** (LLM Integration)
+    *   **Admin** (Vue 3 Web)
+
+### [4. Manuals](docs/4_Manuals/)
+*   **[User Manual](docs/4_Manuals/user_manual.md)**: Step-by-step operation guide.
+*   **[Running Guide](docs/4_Manuals/RUNNING_GUIDE.md)**: Development setup guide.
+
+### [5. Presentation](docs/5_Presentation/)
+*   **[Defense Script](docs/5_Presentation/presentation_script.md)**: Outline for the final presentation.
+
+---
+
+## 🚀 Quick Start
+1.  **Backend**: `cd backend && uvicorn main:app`
+2.  **Admin**: `cd admin-web && npm run dev`
+3.  **App**: Open `mini-program` in HBuilderX.
+
+*For details, see [RUNNING_GUIDE.md](docs/4_Manuals/RUNNING_GUIDE.md).*
