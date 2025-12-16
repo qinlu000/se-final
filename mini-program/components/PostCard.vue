@@ -22,8 +22,19 @@
     </view>
 
     <view class="content">{{ post.content }}</view>
-
-    <MediaGrid v-if="post.media_urls?.length" :media="post.media_urls" />
+    
+    <!-- Video Player -->
+    <view v-if="post.media_type === 'video' && post.media_urls?.length" class="video-container">
+       <video 
+         :src="post.media_urls[0]" 
+         class="post-video" 
+         controls
+         show-center-play-btn
+         object-fit="contain"
+       ></video>
+    </view>
+    <!-- Image Grid -->
+    <MediaGrid v-else-if="post.media_urls?.length" :media="post.media_urls" />
 
     <view class="footer">
       <view class="action-pill" :class="{ active: isLiked }" @click.stop="emitLike">
@@ -432,6 +443,21 @@ const formatTime = (timeStr) => {
   border-radius: var(--radius-m);
   overflow: hidden;
   box-shadow: var(--shadow-hard);
+}
+
+.video-container {
+  margin-top: 14rpx;
+  border: var(--border-thick);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: var(--shadow-hard);
+  background: #000;
+}
+
+.post-video {
+  width: 100%;
+  height: 400rpx;
+  display: block;
 }
 
 @keyframes like-pop {

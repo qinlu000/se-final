@@ -50,12 +50,24 @@
         <text>暂无动态，快去发布第一条吧</text>
       </view>
     </view>
+    </view>
+    
+    <NeuPopup 
+      v-model:visible="showLogout"
+      type="modal"
+      title="退出登录"
+      content="确定要退出登录吗？"
+      confirmText="狠心退出"
+      cancelText="再玩一会"
+      @confirm="confirmLogout"
+    />
   </view>
 </template>
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import PostCard from '../../components/PostCard.vue'
+import NeuPopup from '../../components/NeuPopup.vue'
 import { get } from '../../utils/request'
 
 const profile = reactive({
@@ -68,6 +80,7 @@ const profile = reactive({
 const myPosts = ref([])
 const followerCount = ref(0)
 const followingCount = ref(0)
+const showLogout = ref(false)
 const defaultAvatar =
   'https://img.alicdn.com/imgextra/i3/O1CN01G9FphX1s2oAtxEvsN_!!6000000005714-2-tps-200-200.png'
 
@@ -119,16 +132,12 @@ const onDelete = (postId) => {
 }
 
 const handleLogout = () => {
-  uni.showModal({
-    title: '提示',
-    content: '确定要退出登录吗？',
-    success: (res) => {
-      if (res.confirm) {
-        uni.removeStorageSync('token')
-        uni.reLaunch({ url: '/pages/login/login' })
-      }
-    }
-  })
+  showLogout.value = true
+}
+
+const confirmLogout = () => {
+  uni.removeStorageSync('token')
+  uni.reLaunch({ url: '/pages/login/login' })
 }
 
 const goEditProfile = () => {

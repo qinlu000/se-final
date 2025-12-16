@@ -16,6 +16,13 @@ export function request({ url, method = 'GET', data = {}, header = {} }) {
       success: (res) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data)
+        } else if (res.statusCode === 401) {
+          uni.removeStorageSync('token')
+          uni.showToast({ title: '登录已过期', icon: 'none' })
+          setTimeout(() => {
+            uni.reLaunch({ url: '/pages/login/login' })
+          }, 1500)
+          reject(res)
         } else {
           reject(res)
         }

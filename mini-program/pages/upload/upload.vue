@@ -22,15 +22,29 @@
             <image :src="img" mode="aspectFill" />
             <view class="remove" @click="removeImage(idx)">✕</view>
           </view>
-          <view v-if="images.length < 9" class="add-box" @click="chooseImages">
+          
+          <view v-if="video" class="img-box">
+             <video :src="video" class="preview-video" :controls="false" :show-center-play-btn="false"></video>
+             <view class="remove" @click="removeVideo">✕</view>
+          </view>
+
+          <view v-if="images.length < 9 && !video" class="add-box" @click="chooseImages">
             <text>＋</text>
-            <text class="hint">图片</text>
+            <text class="hint">媒体</text>
           </view>
         </view>
       </view>
     </view>
 
     <button class="post-btn neu-btn full-btn" :disabled="submitting" @click="submitPost">发布</button>
+  
+    <NeuPopup 
+      v-model:visible="showAiSheet"
+      type="sheet"
+      title="✨ AI 魔法助手"
+      :actions="aiActions"
+      @action="onAiAction"
+    />
   </view>
 </template>
 
@@ -38,24 +52,53 @@
 import { ref } from 'vue'
 import { post, BASE_URL } from '../../utils/request'
 import { askAI } from '../../api/ai'
+import NeuPopup from '../../components/NeuPopup.vue'
 
 const content = ref('')
 const images = ref([])
+const video = ref('')
 const submitting = ref(false)
 const aiLoading = ref(false)
+const showAiSheet = ref(false)
+const aiActions = ['🪄 润色内容', '😀 添加 Emoji', '🏷️ 生成标题']
 
 const chooseImages = () => {
-  uni.chooseImage({
-    count: 9 - images.value.length,
-    sizeType: ['compressed'],
+  if (video.value) {
+    uni.showToast({ title: '视频和图片不能同时上传', icon: 'none' })
+    return
+  }
+  uni.showActionSheet({
+    itemList: ['图片', '视频'],
     success: (res) => {
-      images.value = images.value.concat(res.tempFilePaths)
-    },
+      if (res.tapIndex === 0) {
+        uni.chooseImage({
+          count: 9 - images.value.length,
+          sizeType: ['compressed'],
+          success: (r) => {
+            images.value = images.value.concat(r.tempFilePaths)
+          },
+        })
+      } else {
+        uni.chooseVideo({
+          sourceType: ['camera', 'album'],
+          compressed: true,
+          maxDuration: 60,
+          success: (r) => {
+            video.value = r.tempFilePath
+            images.value = [] // Clear images if video selected
+          }
+        })
+      }
+    }
   })
 }
 
 const removeImage = (idx) => {
   images.value.splice(idx, 1)
+}
+
+const removeVideo = () => {
+  video.value = ''
 }
 
 const handleMagicResult = async (mode) => {
@@ -95,15 +138,13 @@ const handleMagicResult = async (mode) => {
 
 const openMagicCompose = () => {
   if (aiLoading.value) return
-  uni.showActionSheet({
-    itemList: ['润色', '加Emoji', '生成标题'],
-    success: (res) => {
-      const idx = res.tapIndex
-      if (idx === 0) handleMagicResult('polish')
-      if (idx === 1) handleMagicResult('emojify')
-      if (idx === 2) handleMagicResult('title')
-    }
-  })
+  showAiSheet.value = true
+}
+
+const onAiAction = (index) => {
+  if (index === 0) handleMagicResult('polish')
+  if (index === 1) handleMagicResult('emojify')
+  if (index === 2) handleMagicResult('title')
 }
 
 const uploadSingle = (filePath) =>
@@ -123,29 +164,49 @@ const uploadSingle = (filePath) =>
             reject(e)
           }
         } else {
-          reject(res)
+          let errMsg = 'Upload failed'
+          try {
+             const errData = JSON.parse(res.data)
+             errMsg = errData.detail || errData.message || errMsg
+          } catch (_) {
+             errMsg = `Error ${res.statusCode}`
+          }
+          reject(new Error(errMsg))
         }
       },
-      fail: reject,
+      fail: (err) => {
+        reject(new Error(err.errMsg || 'Network Error'))
+      },
     })
   })
 
 const submitPost = async () => {
   if (submitting.value) return
-  if (!content.value.trim() && images.value.length === 0) {
-    uni.showToast({ title: '请填写内容或选择图片', icon: 'none' })
+  if (!content.value.trim() && images.value.length === 0 && !video.value) {
+    uni.showToast({ title: '请填写内容或选择媒体', icon: 'none' })
     return
   }
 
   submitting.value = true
   try {
+    let mediaType = 'text'
     const uploaded = []
-    for (const img of images.value) {
-      const url = await uploadSingle(img)
+
+    // 1. Upload Images
+    if (images.value.length > 0) {
+      mediaType = 'image'
+      for (const img of images.value) {
+        const url = await uploadSingle(img)
+        uploaded.push(url)
+      }
+    }
+    // 2. Upload Video
+    else if (video.value) {
+      mediaType = 'video'
+      const url = await uploadSingle(video.value)
       uploaded.push(url)
     }
 
-    const mediaType = uploaded.length > 0 ? 'image' : 'text'
     await post('/posts', {
       content: content.value,
       media_type: mediaType,
@@ -159,7 +220,8 @@ const submitPost = async () => {
     }, 400)
   } catch (err) {
     console.error(err)
-    uni.showToast({ title: '发布失败', icon: 'none' })
+    const msg = err.message || '发布失败'
+    uni.showToast({ title: msg, icon: 'none' })
   } finally {
     submitting.value = false
   }
@@ -259,7 +321,8 @@ const submitPost = async () => {
   box-shadow: var(--shadow-hard);
 }
 
-.img-box image {
+.img-box image,
+.preview-video {
   position: absolute;
   top: 0;
   left: 0;

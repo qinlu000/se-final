@@ -1,5 +1,6 @@
 import uuid
 from pathlib import Path
+import shutil
 
 from fastapi import APIRouter, File, UploadFile
 
@@ -18,8 +19,9 @@ async def upload_file(file: UploadFile = File(...)) -> UploadResponse:
     unique_name = f"{uuid.uuid4().hex}{extension}"
     destination = UPLOAD_DIR / unique_name
 
-    content = await file.read()
-    destination.write_bytes(content)
+    # Stream file to disk to handle large videos without OOM
+    with destination.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
     url = f"/static/uploads/{unique_name}"
     return UploadResponse(url=url)
