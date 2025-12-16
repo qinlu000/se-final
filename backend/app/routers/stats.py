@@ -18,12 +18,36 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     total_users = total_users_result.scalar_one() or 0
     total_posts = total_posts_result.scalar_one() or 0
 
-    # Mock daily active data for the past 7 days.
+    # Real Daily Active Users (DAU) Calculation
+    # Definition: Anyone who posted, commented, or rated on that day.
+    from app.models import Comment, Rating
+    from sqlalchemy import union
+
     today = datetime.utcnow().date()
     daily_active = []
+    
     for i in range(7):
-        day = today - timedelta(days=6 - i)
-        daily_active.append({"date": day.isoformat(), "active": 50 + i * 5})
+        target_date = today - timedelta(days=6 - i)
+        start_dt = datetime.combine(target_date, datetime.min.time())
+        end_dt = datetime.combine(target_date, datetime.max.time())
+        
+        # Select user_ids from all 3 tables for this time range
+        q_posts = select(Post.user_id).where(Post.created_at >= start_dt, Post.created_at <= end_dt)
+        q_comments = select(Comment.user_id).where(Comment.created_at >= start_dt, Comment.created_at <= end_dt)
+        q_ratings = select(Rating.user_id).where(Rating.created_at >= start_dt, Rating.created_at <= end_dt)
+        
+        # Union them to get unique active users
+        u_query = union(q_posts, q_comments, q_ratings)
+        
+        # Count the result of the union
+        # Note: SQLAlchemy sync style for union count is tricky, simpler to subquery or just fetch distinct
+        # Optimized approach:
+        result = await db.execute(
+             select(func.count()).select_from(u_query.subquery())
+        )
+        active_count = result.scalar_one() or 0
+        
+        daily_active.append({"date": target_date.isoformat(), "active": active_count})
 
     # Content Type Distribution
     content_type_result = await db.execute(

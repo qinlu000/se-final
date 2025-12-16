@@ -50,7 +50,6 @@
         <text>暂无动态，快去发布第一条吧</text>
       </view>
     </view>
-    </view>
     
     <NeuPopup 
       v-model:visible="showLogout"

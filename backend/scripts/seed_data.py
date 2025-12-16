@@ -76,6 +76,18 @@ POST_CONTENTS = [
 ]
 TAGS = ['travel', 'food', 'tech', 'sport', 'movie', 'music', 'cat', 'pet', 'learning', 'paris', 'sushi', 'coding', 'running', 'chill', '生活', '快乐', '吐槽', '美食', 'emo', '加班', 'rust', 'architecture', 'microservices', 'story', 'life', 'rain', 'interstellar', 'nolan']
 
+POST_TYPE_IMAGE = "image"
+IMAGE_CAPTIONS = [
+    "Look at this amazing view! #scenery #travel",
+    "Delicious homemade dinner 🍳 #food #cooking",
+    "My workspace setup for today 💻 #tech #setup",
+    "Cute cat alert! 🐱 #cat #pet",
+    "Sunset vibes 🌅 #sky #nature",
+    "Art museum visit 🎨 #art #culture",
+    "Coffee time ☕ #coffee #relax",
+    "New kicks! 👟 #fashion #style"
+]
+
 async def seed_data():
     print("Creating tables...")
     async with engine.begin() as conn:
@@ -129,50 +141,79 @@ async def seed_data():
             tag_models[t_name] = tag
         await db.commit()
 
+
         # 3. Create Posts
         print("Seeding Posts...")
-        for _ in range(20): # Create 20 random posts
+        for _ in range(50): # Increased to 50
             user = random.choice(user_models)
-            content = random.choice(POST_CONTENTS)
             
-            # Extract tags from content (simple hash check)
+            # Randomly decide type: 40% Image, 60% Text
+            if random.random() < 0.4:
+                content = random.choice(IMAGE_CAPTIONS)
+                media_type = "image"
+                # Use distinct seeds for variety
+                img_seed = random.randint(100, 1000)
+                media_urls = [f"https://picsum.photos/seed/{img_seed}/800/600"]
+            else:
+                content = random.choice(POST_CONTENTS)
+                media_type = "text"
+                media_urls = []
+
+            # Extract tags
             post_tags = []
             for t_name in TAGS:
                 if f"#{t_name}" in content.lower() or t_name in content.lower():
                     if t_name in tag_models:
                         post_tags.append(tag_models[t_name])
             
+            # Distribute dates heavily in last 7 days for Real Stats visibility
+            days_ago = random.choices(
+                [0, 1, 2, 3, 4, 5, 6, 7, 10, 20, 30], 
+                weights=[10, 8, 5, 5, 5, 5, 5, 2, 2, 1, 1],
+                k=1
+            )[0]
+            created_at = datetime.utcnow() - timedelta(days=days_ago)
+
             post = Post(
                 user_id=user.id,
                 content=content,
-                media_type="text", # Simplified for seed
-                media_urls=[],
+                media_type=media_type, 
+                media_urls=media_urls,
                 tags=post_tags,
-                created_at=datetime.utcnow() - timedelta(days=random.randint(0, 30))
+                created_at=created_at
             )
             db.add(post)
         await db.commit()
 
         # 4. Create Interactions (Comments, Ratings, Follows)
         print("Seeding Interactions...")
-        # Fetch all posts
+        # Fetch all posts again to include new ones
         res = await db.execute(select(Post))
         all_posts = res.scalars().all()
 
         for post in all_posts:
             # Random ratings
-            for _ in range(random.randint(0, 5)):
+            for _ in range(random.randint(0, 8)): # More ratings
                 u = random.choice(user_models)
                 if u.id == post.user_id: continue
-                # Check existing
+                
+                # Check exist
                 res = await db.execute(select(Rating).where(Rating.user_id==u.id, Rating.post_id==post.id))
                 if not res.scalar_one_or_none():
+                    # Fake the interaction time to match post time broadly (or today)
+                    # Ideally, Real Stats uses created_at. We mock it to 'now' mostly, 
+                    # but for 'Daily Active' it counts user activity. 
+                    # If we want past activity, we need to manulaly set created_at if model allows.
+                    # Model defines server_default=func.now(). We can override if passed explicitly?
+                    # Let's try forcing it or just let it be now (Active Today).
+                    # For demo, 'Active Today' is fine.
                     db.add(Rating(user_id=u.id, post_id=post.id, score=random.randint(3, 5)))
             
             # Random comments
-            for _ in range(random.randint(0, 3)):
+            for _ in range(random.randint(0, 5)):
                 u = random.choice(user_models)
-                db.add(Comment(user_id=u.id, post_id=post.id, content="Nice post!"))
+                cmt = Comment(user_id=u.id, post_id=post.id, content="Great post! 👍")
+                db.add(cmt)
 
         # Random follows
         for u in user_models:

@@ -17,7 +17,7 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 _CACHE: Dict[str, Tuple[float, dict]] = {}
 _CACHE_TTL_SECONDS = 60 * 60 * 24  # 24h
 _RATE_LIMIT: Dict[str, list[float]] = {}
-_RATE_LIMIT_PER_MIN = 10
+_RATE_LIMIT_PER_MIN = 60
 
 
 def _get_ip(request: Request) -> str:

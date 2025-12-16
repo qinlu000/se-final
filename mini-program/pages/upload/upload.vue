@@ -129,7 +129,10 @@ const handleMagicResult = async (mode) => {
     }
   } catch (err) {
     console.error(err)
-    uni.showToast({ title: 'AI暂不可用', icon: 'none' })
+    let msg = 'AI暂不可用'
+    if (err.statusCode === 429) msg = '请求太频繁，请稍后再试'
+    else if (err.data && err.data.detail) msg = err.data.detail
+    uni.showToast({ title: msg, icon: 'none' })
   } finally {
     aiLoading.value = false
     uni.hideLoading()

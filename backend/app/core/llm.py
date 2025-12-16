@@ -146,7 +146,7 @@ Target language: {target_lang}
         # 2. Extract fields
         res = {
             "summary": data.get("summary"),
-            "tags": data.get("tags") if include_tags else [],
+            "tags": (data.get("tags") or []) if include_tags else [],
             "suggestions": data.get("suggestions") or [],
             "translated_content": data.get("translated_content"),
             "vibe": data.get("vibe"),

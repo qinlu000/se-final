@@ -26,7 +26,7 @@
     <!-- Video Player -->
     <view v-if="post.media_type === 'video' && post.media_urls?.length" class="video-container">
        <video 
-         :src="post.media_urls[0]" 
+         :src="resolveUrl(post.media_urls[0])" 
          class="post-video" 
          controls
          show-center-play-btn
@@ -81,9 +81,19 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { request } from '../utils/request'
+import { request, BASE_URL } from '../utils/request'
 import MediaGrid from './MediaGrid.vue'
 import AICard from './AICard.vue'
+
+// ...
+
+const resolveUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http') || url.startsWith('blob')) return url
+  return `${BASE_URL}${url}`
+}
+
+// ... existing code ...
 
 const emit = defineEmits(['like', 'comment', 'delete'])
 const props = defineProps({
