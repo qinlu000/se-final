@@ -24,6 +24,12 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     from sqlalchemy import union
 
     today = datetime.utcnow().date()
+    
+    # Total Interactions (Comments + Ratings)
+    total_comments = (await db.execute(select(func.count(Comment.id)))).scalar_one() or 0
+    total_ratings = (await db.execute(select(func.count(Rating.id)))).scalar_one() or 0
+    total_interactions = total_comments + total_ratings
+
     daily_active = []
     
     for i in range(7):
@@ -40,8 +46,6 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
         u_query = union(q_posts, q_comments, q_ratings)
         
         # Count the result of the union
-        # Note: SQLAlchemy sync style for union count is tricky, simpler to subquery or just fetch distinct
-        # Optimized approach:
         result = await db.execute(
              select(func.count()).select_from(u_query.subquery())
         )
@@ -60,6 +64,7 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     return {
         "total_users": total_users,
         "total_posts": total_posts,
+        "total_interactions": total_interactions,
         "daily_active": daily_active,
         "content_type_distribution": content_type_distribution,
     }

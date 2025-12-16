@@ -15,7 +15,7 @@
       </el-card>
       <el-card class="card card-purple">
         <div class="stat-title">互动总量</div>
-        <div class="stat-value">{{ totalInteractions }}</div>
+        <div class="stat-value">{{ stats.total_interactions }}</div>
       </el-card>
     </div>
 
@@ -53,6 +53,7 @@ import api from '../api'
 interface DashboardStats {
   total_users: number
   total_posts: number
+  total_interactions: number
   daily_active: { date: string; active: number }[]
   content_type_distribution: { name: string; value: number }[]
 }
@@ -60,6 +61,7 @@ interface DashboardStats {
 const stats = reactive<DashboardStats>({
   total_users: 0,
   total_posts: 0,
+  total_interactions: 0,
   daily_active: [],
   content_type_distribution: [],
 })
@@ -71,10 +73,6 @@ const todayActive = computed(() => {
   return 0
 })
 
-// Mock interaction count based on posts (since we don't have a direct API for it yet)
-const totalInteractions = computed(() => {
-  return stats.total_posts * 5 + stats.total_users * 2 // Simplified estimation
-})
 
 const lineRef = ref<HTMLDivElement>()
 const pieRef = ref<HTMLDivElement>()

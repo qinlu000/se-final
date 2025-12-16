@@ -21,7 +21,15 @@
       </view>
     </view>
 
-    <view class="content">{{ post.content }}</view>
+    <view class="content">{{ cleanContent }}</view>
+    
+    <!-- Explicit Tags Row -->
+    <view v-if="post.tags && post.tags.length > 0" class="tags-row">
+      <view v-for="tag in post.tags" :key="tag.id" class="tag-pill">
+        <text class="tag-hash">#</text>
+        <text class="tag-text">{{ tag.name }}</text>
+      </view>
+    </view>
     
     <!-- Video Player -->
     <view v-if="post.media_type === 'video' && post.media_urls?.length" class="video-container">
@@ -92,6 +100,12 @@ const resolveUrl = (url) => {
   if (url.startsWith('http') || url.startsWith('blob')) return url
   return `${BASE_URL}${url}`
 }
+
+const cleanContent = computed(() => {
+  if (!props.post?.content) return ''
+  // Remove hashtags (e.g. #tag) from body text since they are displayed as pills
+  return props.post.content.replace(/#\S+/g, '').trim()
+})
 
 // ... existing code ...
 
@@ -481,4 +495,32 @@ const formatTime = (timeStr) => {
   50% { box-shadow: 6rpx 6rpx 0px 0px #000; transform: translate(-1rpx, -1rpx); }
   100% { box-shadow: 4rpx 4rpx 0px 0px #000; }
 }
+
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  background: var(--c-bg); /* Default background */
+  border: 2rpx solid #000;
+  border-radius: 999px;
+  font-size: 24rpx;
+  font-weight: 700;
+  box-shadow: 2rpx 2rpx 0px 0px #000;
+}
+
+.tag-hash {
+  color: var(--c-blue);
+  margin-right: 4rpx;
+}
+
+.tag-pill:nth-child(3n+1) { background: #E0F2FE; } /* Light Blue */
+.tag-pill:nth-child(3n+2) { background: #FEF3C7; } /* Light Yellow */
+.tag-pill:nth-child(3n+3) { background: #FCE7F3; } /* Light Pink */
 </style>
