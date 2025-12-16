@@ -15,7 +15,8 @@ App.vue (Global Context)
 │   │   │       └── TagChip
 │   │   └── FloatingActionButton (Post)
 │   ├── Upload (Form)
-│   │   ├── ImagePicker
+│   │   ├── ImagePicker / VideoPicker
+│   │   ├── TagsInput
 │   │   └── MagicWandButton (ActionSheet)
 │   └── Profile
 └── Utils

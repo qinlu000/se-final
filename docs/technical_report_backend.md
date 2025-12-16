@@ -67,6 +67,8 @@ CREATE TABLE posts (
     user_id INTEGER REFERENCES users(id),
     content TEXT NOT NULL,
     media_urls JSONB, -- Stores ["http://...", "http://..."]
+    media_type VARCHAR(10) DEFAULT 'text', -- 'image' or 'video'
+    tags JSONB, -- Stores ["tag1", "tag2"]
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_posts_user_id ON posts(user_id);

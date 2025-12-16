@@ -117,8 +117,6 @@ erDiagram
     
     Post ||--o{ Comment : "has"
     Post ||--o{ Rating : "receives"
-    Post ||--o{ PostTag : "categorized by"
-    Tag ||--o{ PostTag : "tags"
 
     User {
         int id PK
@@ -135,6 +133,7 @@ erDiagram
         text content
         enum media_type "text/image/video"
         json media_urls "Array of file paths"
+        json tags "Array of string tags"
         datetime created_at
     }
 
@@ -145,7 +144,7 @@ erDiagram
 ```
 
 ### 4.2 Key Schema Decisions
-1.  **Media Storage**: Instead of a separate `Media` table, we use a `JSON` column (`media_urls`) in the `Post` table. This simplifies queries for posts that have multiple images (1-9 images), typical for "Moments" style feeds.
+1.  **Rich Media & Tags**: We use `JSONB` columns for both `media_urls` and `tags`. This effectively supports "NoSQL-like" flexibility within Postgres/SQLite for these list-based fields, avoiding the complexity of `media` or `tags` join tables for simple retrieval use cases.
 2.  **Interactions**: `Rating` table is used for "Likes". It stores a `score` (1-5), but for the "Like" feature, we standardize on a score of 5. This allows future extensibility to a star-rating system without schema changes.
 3.  **Follow System**: Implemented as a self-referential many-to-many relationship on the `User` table using a dedicated association table (`follows`).
 

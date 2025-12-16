@@ -7,8 +7,8 @@
 
 ### 2.1 Use Case Analysis
 The system serves three primary actors:
-1.  **Consumer**: Browses feeds, interacts (Like/Comment), uses AI to summarize/translate content.
-2.  **Creator**: Publishes multimedia posts, uses AI to polish text/generate titles.
+1.  **Consumer**: Browses feeds with rich media (Video/Image), interacts (Like/Comment), uses AI to summarize/translate content.
+2.  **Creator**: Publishes multimedia posts (Up to 9 images or 1 video), adds topic tags, uses AI to polish text/generate titles.
 3.  **Administrator**: Moderates content, manages user access, views platform analytics.
 
 ### 2.2 Core Business Process Logic (Sequence Diagrams)

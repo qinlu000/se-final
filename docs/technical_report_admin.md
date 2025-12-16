@@ -59,7 +59,7 @@ Leverages `<el-table>` for high-density data display.
     - **Pie Chart**: "Post Distribution (Text vs Image)".
 
 ## 4. Development Workflow
-- **Mock Service**: During early dev, we used **Mock.js** to simulate backend responses, allowing frontend/backend parallel development.
+- **Real Data Integration**: Replaced initial Mock.js simulation with real backend API integration (`/stats/dashboard`), aggregating data from `Post`, `Comment`, and `Rating` tables.
 - **Environment Handling**:
     - `.env.development`: `VITE_BASE_API = '/dev-api'`
     - `.env.production`: `VITE_BASE_API = 'https://api.moments.com'`
