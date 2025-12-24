@@ -60,7 +60,15 @@ You need to create an initial administrator account to access the Admin Web.
 python scripts/create_admin.py admin 123456
 ```
 
-### 2.5 Start the Server
+### 2.5 Seed Demo Data (Optional but handy for testing)
+Run the seeding script to populate users, posts, tags, and interactions that make the frontends feel alive.
+```bash
+# From the backend directory (same env as step 2.2)
+python scripts/seed_data.py
+```
+This is safe to rerun and will append fresh records; seed data stops short of overwriting the admin you created above.
+
+### 2.6 Start the Server
 ```bash
 uvicorn main:app --reload --port 8000
 ```
@@ -124,8 +132,9 @@ The mobile interface for end-users.
 ### 5.2 Posting Content
 1.  Click the **+ (Plus)** floating button on the bottom right.
 2.  Enter some text content.
-3.  (Optional) Click the **+** grid item to upload images.
-4.  Click **Publish**. You should be redirected to the Feed and see your new post.
+3.  **Multimedia**: Click `+` to upload images (up to 9) OR click the "Video" icon to upload a short video.
+4.  **Tags**: Enter a tag (e.g., "Food") in the input field and press Enter.
+5.  Click **Publish**. You should be redirected to the Feed and see your new post.
 
 ### 5.3 Interactions
 *   **Like**: Click the Heart icon ❤️. It turns red instantly. Click again to cancel.
