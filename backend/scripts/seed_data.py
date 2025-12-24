@@ -167,11 +167,7 @@ async def seed_data():
                         post_tags.append(tag_models[t_name])
             
             # Distribute dates heavily in last 7 days for Real Stats visibility
-            days_ago = random.choices(
-                [0, 1, 2, 3, 4, 5, 6, 7, 10, 20, 30], 
-                weights=[10, 8, 5, 5, 5, 5, 5, 2, 2, 1, 1],
-                k=1
-            )[0]
+            days_ago = random.randint(0, 7)
             created_at = datetime.utcnow() - timedelta(days=days_ago)
 
             post = Post(
