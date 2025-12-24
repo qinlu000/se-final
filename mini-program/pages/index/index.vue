@@ -1,6 +1,23 @@
 <template>
   <view class="page">
     <view class="tabs-container">
+      <view class="tag-search">
+        <view class="search-box">
+          <text class="search-icon">#</text>
+          <input
+            class="search-input"
+            v-model="tagKeyword"
+            confirm-type="search"
+            placeholder="输入标签（如 food、tech）"
+            @confirm="applyTag"
+          />
+          <button class="search-btn" size="mini" @click="applyTag">检索</button>
+        </view>
+        <view class="tag-chip" v-if="activeTag" @click="clearTag">
+          <text class="chip-label">Tag: {{ activeTag }}</text>
+          <text class="chip-close">✕</text>
+        </view>
+      </view>
       <view class="tabs">
         <view
           v-for="tab in tabs"
@@ -58,6 +75,8 @@ const finished = ref(false)
 const refreshing = ref(false)
 const currentUserId = ref(null)
 const selectedTab = ref('all')
+const tagKeyword = ref('')
+const activeTag = ref('')
 const tabs = [
   { label: '推荐', value: 'all' },
   { label: '关注', value: 'following' },
@@ -70,6 +89,9 @@ const fetchPosts = async (append = false) => {
     const params = { skip: skip.value, limit }
     if (selectedTab.value === 'following') {
       params.filter = 'following'
+    }
+    if (activeTag.value) {
+      params.tag = activeTag.value
     }
     const res = await get('/posts', params)
     const list = Array.isArray(res) ? res : []
@@ -109,6 +131,26 @@ const refresh = () => {
 const switchTab = (tab) => {
   if (selectedTab.value === tab) return
   selectedTab.value = tab
+  skip.value = 0
+  finished.value = false
+  posts.value = []
+  fetchPosts(false)
+}
+
+const applyTag = () => {
+  const nextTag = tagKeyword.value.trim()
+  if (nextTag === activeTag.value && posts.value.length) return
+  activeTag.value = nextTag
+  skip.value = 0
+  finished.value = false
+  posts.value = []
+  fetchPosts(false)
+}
+
+const clearTag = () => {
+  if (!activeTag.value && !tagKeyword.value) return
+  tagKeyword.value = ''
+  activeTag.value = ''
   skip.value = 0
   finished.value = false
   posts.value = []
@@ -168,7 +210,7 @@ onReachBottom(() => {
 
 .tabs-container {
   background: var(--c-bg); /* Transparent/match bg to show spacing */
-  padding: 24rpx 0 16rpx;
+  padding: 24rpx 24rpx 16rpx;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -176,10 +218,75 @@ onReachBottom(() => {
   /* border-bottom: var(--border-thick); */
 }
 
+.tag-search {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin: 0 auto 16rpx;
+  width: 92%;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--c-white);
+  border: var(--border-thick);
+  border-radius: 24rpx;
+  padding: 14rpx 18rpx;
+  box-shadow: 4rpx 4rpx 0px 0px #000;
+  gap: 14rpx;
+}
+
+.search-icon {
+  font-size: 32rpx;
+  font-weight: 900;
+  color: var(--c-black);
+}
+
+.search-input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 28rpx;
+  padding: 0 8rpx;
+}
+
+.search-btn {
+  background: var(--c-yellow);
+  color: var(--c-black);
+  border: var(--border-thick);
+  border-radius: 999px;
+  padding: 10rpx 26rpx;
+  font-weight: 800;
+  box-shadow: 2rpx 2rpx 0px 0px #000;
+}
+
+.tag-chip {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  background: var(--c-yellow);
+  border: var(--border-thick);
+  border-radius: 999px;
+  padding: 12rpx 24rpx;
+  box-shadow: 2rpx 2rpx 0px 0px #000;
+}
+
+.chip-label {
+  font-size: 26rpx;
+  font-weight: 800;
+}
+
+.chip-close {
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
 .tabs {
   display: flex;
   justify-content: center;
   gap: 32rpx; /* Space between pills */
+  padding: 0 24rpx;
 }
 
 /* Base Pill Style */
